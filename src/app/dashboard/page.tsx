@@ -28,7 +28,7 @@ const RealEstateCalculator: React.FC = () => {
   const renderContent = (): JSX.Element | null => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard portfolioData={[]} marketData={[]} />;
+        return <Dashboard />;
       case "analysis":
         return <PropertyAnalysis />;
       case "market":
@@ -52,9 +52,11 @@ const RealEstateCalculator: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="flex min-h-screen bg-gray-50">
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-      {renderContent()}
+      <main className="flex-1 ml-64 p-8">
+        {renderContent()}
+      </main>
     </div>
   );
 };

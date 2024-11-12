@@ -13,15 +13,9 @@ import {
   Legend,
 } from "recharts";
 import {
-  Calculator,
   DollarSign,
   TrendingUp,
-  FileText,
-  Building2,
   PiggyBank,
-  ArrowUpRight,
-  ArrowDownRight,
-  ArrowRight,
   Percent,
 } from "lucide-react";
 
@@ -69,7 +63,7 @@ const FinancialPlanningContent: React.FC = () => {
     downPayment: 60000,
   });
 
-  const [taxInfo, setTaxInfo] = useState<TaxInfo>({
+  const [taxInfo] = useState<TaxInfo>({
     propertyTax: 3000,
     incomeTaxRate: 25,
     deductions: 5000,

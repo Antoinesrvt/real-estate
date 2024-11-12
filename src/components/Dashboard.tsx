@@ -1,7 +1,5 @@
 import React from "react";
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -15,29 +13,25 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  TrendingUp,
-  TrendingDown,
   AlertCircle,
   DollarSign,
   Home,
   Users,
-  Calendar,
   ArrowUp,
-  ArrowDown,
   Bell,
   Activity,
 } from "lucide-react";
 
 interface DashboardContentProps {
   currency?: string;
-  portfolioData?: any; // Define a more specific type if available
-  marketData?: any; // Define a more specific type if available
+  // portfolioData?: any; // Define a more specific type if available
+  // marketData?: any; // Define a more specific type if available
 }
 
 const DashboardContent: React.FC<DashboardContentProps> = ({
   currency = "USD",
-  portfolioData,
-  marketData,
+  // portfolioData,
+  // marketData,
 }) => {
   // Sample data - in production, this would come from props or API
   const propertyStats = {

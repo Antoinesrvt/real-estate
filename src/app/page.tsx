@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Building2, LineChart, Globe, Calculator, Shield } from "lucide-react";
+import { ArrowRight, Building2, LineChart, Globe, Calculator } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home() {

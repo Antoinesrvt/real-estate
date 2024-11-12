@@ -1,15 +1,17 @@
 import React from "react";
-import { Home, Calculator, Settings, LineChart, Globe, Briefcase } from "lucide-react";
+import { Home, Calculator, Settings, Globe, Briefcase } from "lucide-react";
 
-// Define the type for the props
 interface NavigationProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab }) => (
-  <div className="mb-6 border-b">
-    <div className="flex space-x-1">
+  <div className="w-64 h-screen bg-white border-r shadow-sm fixed left-0 top-0">
+    <div className="p-4 border-b">
+      <h1 className="text-xl font-bold text-gray-800">Real Estate</h1>
+    </div>
+    <nav className="p-4 space-y-2">
       {[
         { id: "dashboard", label: "Dashboard", icon: Home },
         { id: "analysis", label: "Property Analysis", icon: Calculator },
@@ -21,17 +23,17 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
         <button
           key={id}
           onClick={() => setActiveTab(id)}
-          className={`px-4 py-2 flex items-center gap-2 transition-colors
+          className={`w-full px-4 py-3 flex items-center gap-3 rounded-lg transition-colors
             ${
-              activeTab === id 
-                ? "border-b-2 border-blue-500 text-blue-600"
-                : "text-gray-600 hover:text-blue-500"
+              activeTab === id
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600 hover:bg-gray-50 hover:text-blue-500"
             }`}
         >
-          <Icon className="h-4 w-4" />
-          {label}
+          <Icon className="h-5 w-5" />
+          <span>{label}</span>
         </button>
       ))}
-    </div>
+    </nav>
   </div>
 );

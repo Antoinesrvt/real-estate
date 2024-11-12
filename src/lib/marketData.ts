@@ -49,8 +49,14 @@ export async function getMarketData(location: string = 'Bordeaux'): Promise<Mark
   }
 }
 
-function generatePriceHistory(listings: any[]): MarketData['priceHistory'] {
-  // This is a simplified version. In a real scenario, you'd aggregate data over time.
+export interface Listing {
+  price: number;
+  rent: number;
+  created_at: string; // Assuming this is a date string
+  // Add any other relevant fields from the listings data
+}
+
+function generatePriceHistory(listings: Listing[]): MarketData['priceHistory'] {
   const last12Months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
@@ -65,7 +71,7 @@ function generatePriceHistory(listings: any[]): MarketData['priceHistory'] {
   }));
 }
 
-function calculateMetrics(listings: any[]): MarketData['metrics'] {
+function calculateMetrics(listings: Listing[]): MarketData['metrics'] {
   const avgPrice = calculateAveragePrice(listings);
   const avgRental = calculateAverageRental(listings);
 
@@ -79,17 +85,17 @@ function calculateMetrics(listings: any[]): MarketData['metrics'] {
   };
 }
 
-function calculateAveragePrice(listings: any[]): number {
+function calculateAveragePrice(listings: Listing[]): number {
   const prices = listings.map(l => l.price).filter(p => p > 0);
   return prices.length ? Math.round(prices.reduce((a, b) => a + b) / prices.length) : 0;
 }
 
-function calculateAverageRental(listings: any[]): number {
+function calculateAverageRental(listings: Listing[]): number {
   const rentals = listings.map(l => l.rent).filter(r => r > 0);
   return rentals.length ? Math.round(rentals.reduce((a, b) => a + b) / rentals.length) : 0;
 }
 
-function calculateAverageDaysOnMarket(listings: any[]): number {
+function calculateAverageDaysOnMarket(listings: Listing[]): number {
   const now = new Date();
   const daysOnMarket = listings.map(l => {
     const listDate = new Date(l.created_at);

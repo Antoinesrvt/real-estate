@@ -14,17 +14,14 @@ import {
 } from "recharts";
 import {
   Search,
-  MapPin,
-  TrendingUp,
   Building2,
   DollarSign,
   Home,
   Users,
   ArrowUpRight,
   ArrowDownRight,
-  ArrowRight,
 } from "lucide-react";
-import { useDebouncedCallback } from 'use-debounce';
+// import { useDebouncedCallback } from 'use-debounce';
 
 interface MarketTrends {
   priceHistory: { month: string; price: number; rental: number; inventory: number }[];
@@ -57,9 +54,9 @@ interface MarketResearchContentProps {
 }
 
 const MarketResearchContent: React.FC<MarketResearchContentProps> = ({ currency = "USD" }) => {
-  const [selectedLocation, setSelectedLocation] = useState<string>("downtown");
+  const [selectedLocation] = useState<string>("downtown");
   const [timeRange, setTimeRange] = useState<string>("1y");
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  // const [suggestions, setSuggestions] = useState<any[]>([]);
 
   // Sample data - would come from API in production
   const marketTrends: Record<string, MarketTrends> = {
@@ -112,19 +109,19 @@ const MarketResearchContent: React.FC<MarketResearchContentProps> = ({ currency 
 
   const currentMetrics = marketTrends[selectedLocation].metrics;
 
-  const handleLocationSearch = useDebouncedCallback(async (searchTerm: string) => {
-    try {
-      // Using Google Places Autocomplete API
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchTerm}&types=(cities)&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`
-      );
-      const data = await response.json();
-      // Update location suggestions
-      setSuggestions(data.predictions);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-    }
-  }, 300);
+  // const handleLocationSearch = useDebouncedCallback(async (searchTerm: string) => {
+  //   try {
+  //     // Using Google Places Autocomplete API
+  //     const response = await fetch(
+  //       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchTerm}&types=(cities)&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`
+  //     );
+  //     const data = await response.json();
+  //     // Update location suggestions
+  //     setSuggestions(data.predictions);
+  //   } catch (error) {
+  //     console.error('Error fetching locations:', error);
+  //   }
+  // }, 300);
 
   return (
     <div className="space-y-6">
