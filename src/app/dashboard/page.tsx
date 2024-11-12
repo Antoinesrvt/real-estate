@@ -2,7 +2,11 @@
 import React, { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { GlobalSettings } from "@/components/GlobalSettings";
-import DashboardContent from './DashboardContent';
+import PropertyAnalysis from "@/components/PropertyAnalysis";
+import Dashboard from "@/components/Dashboard";
+import FinancialPlanning from "@/components/FinancialPlanning";
+import MarketResearch from "@/components/MarketResearchContent";
+import Portfolio from "@/components/Portfolio";
 
 const RealEstateCalculator: React.FC = () => {
   // Add new state variables
@@ -24,15 +28,15 @@ const RealEstateCalculator: React.FC = () => {
   const renderContent = (): JSX.Element | null => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardContent />;
+        return <Dashboard portfolioData={[]} marketData={[]} />;
       case "analysis":
-        return <DashboardContent />;
+        return <PropertyAnalysis />;
       case "market":
-        return <></>; // <MarketResearchContent />;
+        return <MarketResearch />;
       case "financial":
-        return <></>; // <FinancialPlanningContent />;
+        return <FinancialPlanning />;
       case "portfolio":
-        return <></>; // <PortfolioContent />;
+        return <Portfolio />;
       case "settings":
         return (
           <GlobalSettings

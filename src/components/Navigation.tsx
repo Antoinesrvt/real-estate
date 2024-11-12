@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Calculator, Settings } from "lucide-react";
+import { Home, Calculator, Settings, LineChart, Globe, Briefcase } from "lucide-react";
 
 // Define the type for the props
 interface NavigationProps {
@@ -13,9 +13,9 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
       {[
         { id: "dashboard", label: "Dashboard", icon: Home },
         { id: "analysis", label: "Property Analysis", icon: Calculator },
-        // { id: "market", label: "Market Research", icon: Globe },
+        { id: "market", label: "Market Research", icon: Globe },
         // { id: "financial", label: "Financial Planning", icon: LineChart },
-        // { id: "portfolio", label: "Portfolio", icon: Briefcase },
+        { id: "portfolio", label: "Portfolio", icon: Briefcase },
         { id: "settings", label: "Settings", icon: Settings },
       ].map(({ id, label, icon: Icon }) => (
         <button
