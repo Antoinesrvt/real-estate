@@ -4,54 +4,35 @@ import React, { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, ZoomIn, ZoomOut, Home } from "lucide-react";
 import { motion } from "framer-motion";
+import { GoalCard } from "./Card";
+import { goalsData } from "./type";
 
-const goalsData = [
-  {
-    id: 1,
-    title: "Site E-commerce",
-    type: "fondation",
-    progress: 90,
-    position: { x: 100, y: 100 },
-    connections: [5],
-    description: "Développement Frontend",
-  },
-  {
-    id: 2,
-    title: "Base de données",
-    type: "fondation",
-    progress: 75,
-    position: { x: 100, y: 300 },
-    connections: [5],
-    description: "Architecture Backend",
-  },
-  {
-    id: 5,
-    title: "MVP Application",
-    type: "action",
-    progress: 60,
-    position: { x: 500, y: 200 },
-    connections: [8],
-    description: "Version Beta",
-  },
-  {
-    id: 8,
-    title: "Startup Tech",
-    type: "strategie",
-    progress: 45,
-    position: { x: 900, y: 200 },
-    connections: [10],
-    description: "Lancement Entreprise",
-  },
-  {
-    id: 10,
-    title: "Liberté Financière",
-    type: "vision",
-    progress: 30,
-    position: { x: 1300, y: 200 },
-    connections: [],
-    description: "Objectif Final",
-  },
-];
+export interface Goal {
+  id: number;
+  title: string;
+  type: "fondation" | "action" | "strategie" | "vision";
+  level: number;
+  progress: number;
+  connections: number[];
+  description?: string;
+  position?: { x: number; y: number };
+}
+
+// Configuration de la grille avec des espacements optimisés
+const CARD_WIDTH = 264;
+const CARD_HEIGHT = 36;
+const HORIZONTAL_GAP = 70;  // Espacement entre les types (horizontal)
+const VERTICAL_GAP = 50;    // Espacement entre les goals (vertical)
+
+// Ordre des types de gauche à droite
+const SECTION_TYPES = ["fondation", "action", "strategie", "vision"];
+
+const TYPE_LABELS = {
+  fondation: "Fondations",
+  action: "Actions",
+  strategie: "Stratégies",
+  vision: "Vision Stratégique",
+};
 
 const GoalTracker = () => {
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
@@ -59,7 +40,31 @@ const GoalTracker = () => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef(null);
 
-  const [goals] = useState(goalsData);
+  // Mise à jour du calcul des positions
+  const calculatePositions = (goals: Goal[]) => {
+    // Grouper les goals par type
+    const goalsByType = SECTION_TYPES.reduce((acc, type) => {
+      acc[type] = goals.filter(goal => goal.type === type);
+      return acc;
+    }, {} as Record<string, Goal[]>);
+
+    return goals.map(goal => {
+      const typeIndex = SECTION_TYPES.indexOf(goal.type);
+      const goalsOfSameType = goalsByType[goal.type];
+      const goalIndexInType = goalsOfSameType.findIndex(g => g.id === goal.id);
+
+      return {
+        ...goal,
+        position: {
+          x: typeIndex * (CARD_WIDTH + HORIZONTAL_GAP),
+          y: goalIndexInType * (CARD_HEIGHT * 3 + VERTICAL_GAP)
+        }
+      };
+    });
+  };
+
+  // Initialiser les goals avec les positions calculées
+  const [goals] = useState(() => calculatePositions(goalsData));
 
   const typeStyles = {
     fondation: {
@@ -147,16 +152,16 @@ const GoalTracker = () => {
         const start = goal.position;
         const end = target.position;
 
-        // Points de contrôle pour une courbe horizontale élégante
+        // Points de contrôle pour une courbe plus naturelle
         const midX = (start.x + end.x) / 2;
 
         return (
           <path
             key={`${goal.id}-${targetId}`}
-            d={`M ${start.x + 264} ${start.y + 36} 
-                C ${midX} ${start.y + 36},
-                  ${midX} ${end.y + 36},
-                  ${end.x} ${end.y + 36}`}
+            d={`M ${start.x + CARD_WIDTH} ${start.y + CARD_HEIGHT/2} 
+                C ${midX} ${start.y + CARD_HEIGHT/2},
+                  ${midX} ${end.y + CARD_HEIGHT/2},
+                  ${end.x} ${end.y + CARD_HEIGHT/2}`}
             className={`${typeStyles[goal.type].connection} fill-none stroke-2`}
             strokeDasharray="5,5"
             style={{ opacity: 0.6 }}
@@ -167,78 +172,48 @@ const GoalTracker = () => {
   };
 
   const renderGoalCard = (goal) => {
-    const styles = typeStyles[goal.type];
-
     return (
-      <motion.div
+      <GoalCard
         key={goal.id}
-        className="absolute"
-        style={{
-          left: goal.position.x,
-          top: goal.position.y,
-        }}
-      >
-        <Card
-          className={`
-          relative w-64 h-36 backdrop-blur-xl
-          ${styles.background} ${styles.border} border
-          hover:border-opacity-50 rounded-xl
-          transition-all duration-300 ease-in-out
-          hover:shadow-lg hover:shadow-black/20 ${styles.shadow}
-          transform hover:-translate-y-1 hover:scale-105 group
-          cursor-pointer
-        `}
-        >
-          <div
-            className={`absolute bottom-0 left-0 h-1 rounded-b-xl transition-all duration-300
-              ${
-                goal.type === "fondation"
-                  ? "bg-purple-400/50"
-                  : goal.type === "action"
-                  ? "bg-blue-400/50"
-                  : goal.type === "strategie"
-                  ? "bg-emerald-400/50"
-                  : "bg-amber-400/50"
-              }`}
-            style={{ width: `${goal.progress}%` }}
-          />
-
-          <CardContent className="p-4 h-full flex flex-col justify-between relative z-10">
-            <div>
-              <div className={`text-xs opacity-70 mb-1 ${styles.text}`}>
-                {goal.description}
-              </div>
-              <div className={`font-semibold ${styles.text} text-lg`}>
-                {goal.title}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <div
-                  className={`
-                  h-2 w-2 rounded-full transition-colors duration-300
-                  ${goal.progress >= 100 ? "bg-green-400" : "bg-white/30"}
-                `}
-                />
-                <span className="text-white/80 text-sm">{goal.progress}%</span>
-              </motion.div>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-1 rounded-full hover:bg-white/10 transition-colors"
-              >
-                <Plus className="h-4 w-4 text-white/60 hover:text-white/90" />
-              </motion.button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+        id={goal.id}
+        title={goal.title}
+        type={goal.type}
+        progress={goal.progress}
+        description={goal.description}
+        position={goal.position}
+      />
     );
+  };
+
+  const renderSectionLabels = () => {
+    return SECTION_TYPES.map((type, index) => (
+      <React.Fragment key={type}>
+        {/* Section Label */}
+        <div
+          className="absolute flex flex-col items-center gap-2"
+          style={{
+            left: index * (CARD_WIDTH + HORIZONTAL_GAP) + CARD_WIDTH/2,
+            top: -40,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <h2 className="text-white/70 font-medium text-sm tracking-wider uppercase">
+            {TYPE_LABELS[type]}
+          </h2>
+          <div className="h-[20px] w-[1px] bg-gradient-to-b from-white/20 to-transparent" />
+        </div>
+        
+        {/* Vertical Separator */}
+        {index < SECTION_TYPES.length - 1 && (
+          <div
+            className="absolute top-0 bottom-0 border-r border-dashed border-white/10"
+            style={{
+              left: (index + 1) * (CARD_WIDTH + HORIZONTAL_GAP) - HORIZONTAL_GAP/2,
+            }}
+          />
+        )}
+      </React.Fragment>
+    ));
   };
 
   return (
@@ -287,6 +262,7 @@ const GoalTracker = () => {
             transition: isDragging ? "none" : "transform 0.1s ease-out",
           }}
         >
+          {renderSectionLabels()}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
             {renderConnections()}
           </svg>
