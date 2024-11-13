@@ -22,7 +22,7 @@ import Overview from './tabs/Overview';
 import Ressources from './tabs/Ressources';
 import { Goal, GoalDetails, TypeStyles } from '../types';
 import { mockGoal, typeStyles } from '../mockData';
-import Updates from "./tabs/NewUpdates";
+import Updates from "./tabs/Updates";
 
 const goal: Goal = mockGoal;
 
@@ -107,8 +107,8 @@ const GoalDetailView = ({ onClose }) => {
         <div className="p-6 h-[calc(90vh-200px)] overflow-y-auto">
           {activeTab === "overview" && <Overview goalDetails={goalDetails} styles={styles} />}
 
-          {activeTab === "updates" && <Updates goalDetails={goalDetails} />}
-
+          {activeTab === "updates" && <Updates goalDetails={goalDetails} selectedObject={undefined} styles={styles} />}
+          
           {activeTab === "tasks" && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">

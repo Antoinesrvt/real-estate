@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistance } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -14,6 +14,9 @@ import {
   Clock,
   AtSign,
   Send,
+  Users,
+  BarChart3,
+  Target,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,17 +30,48 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
-import { UpdatesTabProps, Update, UpdateAttachment, User } from "../../types";
+import { EventUpdate, ObjectUpdate, Update, UpdateAttachment, UpdateObjectType, User } from "../../types";
+import EventUpdateCard from "./updatesCards/EventUpdate";
+import ObjectUpdateCard from "./updatesCards/ObjectUpdateCard";
+
+
+export type SelectedObject = {
+  type: UpdateObjectType;
+  id: string;
+  title: string;
+} | undefined;
+
+interface UpdatesTabProps {
+  goalDetails: {
+    updates: Update[];
+    team: User[];
+  };
+  selectedObject?: SelectedObject;
+  onAddUpdate?: (update: Omit<Update, "id" | "createdAt">) => void;
+  onAddComment?: (
+    updateId: string,
+    comment: Omit<Comment, "id" | "createdAt">
+  ) => void;
+  onRemoveReaction?: (updateId: string, emoji: string) => void;
+  onAddAttachment?: (
+    updateId: string,
+    attachment: Omit<UpdateAttachment, "id">
+  ) => void;
+  onRemoveAttachment?: (updateId: string, attachmentId: string) => void;
+  onAddReaction?: (updateId: string, emoji: string) => void;
+  styles?: {
+    background?: string;
+    text?: string;
+  };
+}
 
 const NewUpdates: React.FC<UpdatesTabProps> = ({
   goalDetails,
+  selectedObject,
   onAddUpdate,
-  onEditUpdate,
-  onDeleteUpdate,
   onAddReaction,
   onRemoveReaction,
-  onAddAttachment,
-  onRemoveAttachment,
+  styles,
 }) => {
   const [newUpdateContent, setNewUpdateContent] = useState("");
   const [editingUpdate, setEditingUpdate] = useState<Update | null>(null);
@@ -61,17 +95,40 @@ const NewUpdates: React.FC<UpdatesTabProps> = ({
     );
   }
 
+  // Filtrer les updates selon la sélection
+  const filteredUpdates = useMemo(() => {
+    if (!selectedObject) {
+      return goalDetails.updates.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+
+    return goalDetails.updates
+      .filter((update) => {
+        if (update.type === "event") return false;
+        return (
+          update.type === selectedObject.type &&
+          update.objectId === selectedObject.id
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+  }, [goalDetails.updates, selectedObject]);
+
   const handleSubmitUpdate = () => {
     if (!newUpdateContent.trim()) return;
 
-    const newUpdate = {
-      content: newUpdateContent,
-      author: "Current User", // This should come from auth context
-      type: "comment" as const,
-    };
+    // const newUpdate = {
+    //   content: newUpdateContent,
+    //   author: "Current User", // This should come from auth context
+    //   type: "comment" as const,
+    // };
 
-    onAddUpdate?.(newUpdate);
-    setNewUpdateContent("");
+    // onAddUpdate?.(newUpdate);
+    // setNewUpdateContent("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -96,6 +153,104 @@ const NewUpdates: React.FC<UpdatesTabProps> = ({
 
   const filteredTeamMembers = goalDetails.team.filter((member) =>
     member.name.toLowerCase().includes(mentionQuery.toLowerCase())
+  );
+
+
+
+  const renderObjectUpdate = (update: ObjectUpdate) => (
+    <Card key={update.id} className="bg-white/5 border-white/10">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-4">
+          <img
+            src={update.author.avatar}
+            alt={update.author.name}
+            className="w-8 h-8 rounded-full"
+          />
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium text-white">
+                {update.author.name}
+              </span>
+              <span className="text-white/40 text-sm">
+                {formatDistance(new Date(update.createdAt), new Date(), {
+                  addSuffix: true,
+                  locale: fr,
+                })}
+              </span>
+            </div>
+
+            {!selectedObject && (
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    update.type === "task"
+                      ? "bg-blue-500/20 text-blue-400"
+                      : update.type === "milestone"
+                      ? "bg-purple-500/20 text-purple-400"
+                      : "bg-emerald-500/20 text-emerald-400"
+                  }`}
+                >
+                  {update.objectTitle}
+                </span>
+              </div>
+            )}
+
+            <p className="text-white/80 whitespace-pre-wrap">
+              {update.content}
+            </p>
+
+            {/* Réactions */}
+            {update.reactions && update.reactions.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {update.reactions.map((reaction, index) => (
+                  <button
+                    key={index}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 hover:bg-white/10"
+                    onClick={() => onAddReaction?.(update.id, reaction.emoji)}
+                  >
+                    <span>{reaction.emoji}</span>
+                    <span className="text-sm text-white/60">
+                      {reaction.users.length}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Commentaires */}
+            {update.comments && update.comments.length > 0 && (
+              <div className="mt-4 space-y-3 pl-4 border-l border-white/10">
+                {update.comments.map((comment) => (
+                  <div key={comment.id} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={comment.author.avatar}
+                        alt={comment.author.name}
+                        className="w-6 h-6 rounded-full"
+                      />
+                      <span className="font-medium text-sm text-white">
+                        {comment.author.name}
+                      </span>
+                      <span className="text-white/40 text-xs">
+                        {formatDistance(
+                          new Date(comment.createdAt),
+                          new Date(),
+                          {
+                            addSuffix: true,
+                            locale: fr,
+                          }
+                        )}
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/80">{comment.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   return (
@@ -157,134 +312,39 @@ const NewUpdates: React.FC<UpdatesTabProps> = ({
         </CardContent>
       </Card>
 
-      {/* Updates List */}
+
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-white">
+          {selectedObject
+            ? `Historique - ${selectedObject.title}`
+            : "Fil d'actualité"}
+        </h3>
+      </div>
+
+      {/* Timeline des updates */}
       <div className="space-y-4">
-        {goalDetails.updates.map((update) => (
-          <motion.div
+        {filteredUpdates.map((update) =>
+          update.type === "event"
+              ? (<motion.div
             key={update.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <Card className="bg-white/5 border-white/10">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-white">
-                        {update.author}
-                      </span>
-                      <span className="text-white/40 text-sm">
-                        {mounted
-                          ? formatDistance(new Date(update.date), new Date(), {
-                              addSuffix: true,
-                              locale: fr,
-                            })
-                          : "Chargement..."}
-                      </span>
-                    </div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-white/40 hover:text-white"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-slate-800 border-white/10"
-                    >
-                      <DropdownMenuItem
-                        onClick={() => setEditingUpdate(update)}
-                        className="text-white/80 focus:text-white focus:bg-white/10"
-                      >
-                        Modifier
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-white/10" />
-                      <DropdownMenuItem
-                        onClick={() => onDeleteUpdate?.(update.id)}
-                        className="text-red-400 focus:text-red-400 focus:bg-white/10"
-                      >
-                        Supprimer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <p className="text-white/80 mt-2">{update.content}</p>
-
-                {/* Attachments */}
-                {update.attachments && update.attachments.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {update.attachments.map((attachment) => (
-                      <div
-                        key={attachment.id}
-                        className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-white/60 text-sm"
-                      >
-                        {attachment.type === "image" ? (
-                          <ImageIcon className="h-4 w-4" />
-                        ) : (
-                          <Link className="h-4 w-4" />
-                        )}
-                        {attachment.name}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Reactions */}
-                {update.reactions && update.reactions.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {update.reactions.map((reaction) => (
-                      <button
-                        key={reaction.id}
-                        onClick={() =>
-                          reaction.users.includes("currentUserId")
-                            ? onRemoveReaction?.(update.id, reaction.emoji)
-                            : onAddReaction?.(update.id, reaction.emoji)
-                        }
-                        className={`px-2 py-1 rounded-full text-sm ${
-                          reaction.users.includes("currentUserId")
-                            ? "bg-white/20 text-white"
-                            : "bg-white/5 text-white/60"
-                        } hover:bg-white/20 transition-colors`}
-                      >
-                        {reaction.emoji} {reaction.count}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Mention Suggestions */}
-      <AnimatePresence>
-        {showMentionSuggestions && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-full left-0 w-64 bg-slate-800 border border-white/10 rounded-lg shadow-xl overflow-hidden"
-          >
-            {filteredTeamMembers.map((member) => (
-              <button
-                key={member.id}
-                onClick={() => handleMentionSelect(member)}
-                className="w-full px-4 py-2 text-left hover:bg-white/10 text-white/80 hover:text-white"
-              >
-                {member.name}
-              </button>
-            ))}
-          </motion.div>
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <EventUpdateCard update={update} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={update.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <ObjectUpdateCard update={update} selectedObject={selectedObject} onAddReaction={onAddReaction} />
+            </motion.div>
+          )
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

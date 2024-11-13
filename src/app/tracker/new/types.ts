@@ -60,26 +60,27 @@ export interface Dependency {
   status: Status;
 }
 
-export interface Update {
-  id: string;
-  date: string;
-  author: string;
-  content: string;
-  type?: 'comment' | 'milestone' | 'task' | 'resource';
-  relatedId?: string;
-  reactions?: UpdateReaction[];
-  attachments?: UpdateAttachment[];
-  mentions?: string[]; // User IDs
-  edited?: boolean;
-  editedAt?: string;
-  editedBy?: string;
+export interface Mention {
+  userId: string;
+  username: string;
+  startIndex: number;
+  endIndex: number;
 }
 
-export interface UpdateReaction {
-  id: string;
+export interface Reaction {
   emoji: string;
   count: number;
   users: string[]; // User IDs who reacted
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  author: User;
+  createdAt: string;
+  editedAt?: string;
+  mentions?: Mention[];
+  reactions?: Reaction[];
 }
 
 export interface UpdateAttachment {
@@ -91,6 +92,41 @@ export interface UpdateAttachment {
   mimeType?: string;
   thumbnail?: string;
 }
+
+export type UpdateObjectType = 'comment' | 'milestone' | 'task' | 'resource' | 'event';
+
+export interface BaseUpdate {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: User;
+  mentions?: Mention[];
+  reactions?: Reaction[];
+  comments?: Comment[];
+  attachments?: UpdateAttachment[];
+  edited?: boolean;
+  editedAt?: string;
+  editedBy?: string;
+}
+
+export interface ObjectUpdate extends BaseUpdate {
+  type: Exclude<UpdateObjectType, "event">;
+  objectId: string;
+  objectTitle: string;
+  objectIcon?: string;
+}
+
+export interface EventUpdate extends BaseUpdate {
+  type: "event";
+  eventType: "team_update" | "metrics_change" | "goal_update";
+  metadata: {
+    previous?: any;
+    current?: any;
+    action?: string;
+  };
+}
+
+export type Update = ObjectUpdate | EventUpdate;
 
 export interface Risk {
   severity: Priority;
@@ -165,14 +201,3 @@ export interface StylesByType {
   strategie: TypeStyles;
   vision: TypeStyles;
 }
-
-export interface UpdatesTabProps {
-  goalDetails: GoalDetails;
-  onAddUpdate?: (update: Omit<Update, 'id' | 'date'>) => void;
-  onEditUpdate?: (update: Update) => void;
-  onDeleteUpdate?: (updateId: string) => void;
-  onAddReaction?: (updateId: string, emoji: string) => void;
-  onRemoveReaction?: (updateId: string, emoji: string) => void;
-  onAddAttachment?: (updateId: string, attachment: Omit<UpdateAttachment, 'id'>) => void;
-  onRemoveAttachment?: (updateId: string, attachmentId: string) => void;
-} 
