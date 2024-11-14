@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, CheckCircle2, LinkIcon, Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { GoalDetails, TypeStyles } from '../../types';
+import { GoalDetails, TypeStyles } from '../../../types';
 
 interface OverviewProps {
   goalDetails: GoalDetails;
@@ -76,7 +76,7 @@ const Overview: React.FC<OverviewProps> = ({ goalDetails, styles }) => {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-white/60">Temps passé</span>
                 <span className="text-white">
-                  {goalDetails.metrics.timeSpent}h
+                  {goalDetails.metrics?.time.timeSpent}h
                 </span>
               </div>
               <Progress value={60} className="h-2" />
@@ -100,7 +100,7 @@ const Overview: React.FC<OverviewProps> = ({ goalDetails, styles }) => {
           <div className="mt-6">
             <h4 className="text-white/60 mb-2">Risques identifiés</h4>
             <div className="space-y-2">
-              {goalDetails.metrics.risks.map((risk, index) => (
+              {goalDetails.metrics?.risks.risks.map((risk, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-2 text-sm p-2 rounded bg-white/5"
@@ -141,7 +141,7 @@ const Overview: React.FC<OverviewProps> = ({ goalDetails, styles }) => {
               >
                 <div className="flex items-center gap-3">
                   <div className="cursor-pointer">
-                    {task.completed ? (
+                    {task.status === "completed" ? (
                       <CheckCircle2 className="h-5 w-5 text-green-400" />
                     ) : (
                       <div className="w-5 h-5 rounded-full border-2 border-white/20" />
@@ -149,7 +149,7 @@ const Overview: React.FC<OverviewProps> = ({ goalDetails, styles }) => {
                   </div>
                   <span
                     className={
-                      task.completed
+                      task.status === "completed"
                         ? "text-white/40 line-through"
                         : "text-white"
                     }

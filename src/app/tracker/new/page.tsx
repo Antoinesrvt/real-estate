@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Plus, ZoomIn, ZoomOut, Home } from "lucide-react";
 import { motion } from "framer-motion";
 import { GoalCard } from "./Card";
-import { goalsData } from "./type";
+import { goalsData } from "../../../types/type";
+import { useGoal } from "../contexts/GoalContext";
 
 export interface Goal {
   id: number;
@@ -39,6 +40,7 @@ const GoalTracker = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef(null);
+  const { openGoalCard } = useGoal();
 
   // Mise à jour du calcul des positions
   const calculatePositions = (goals: Goal[]) => {
@@ -120,6 +122,8 @@ const GoalTracker = () => {
   };
 
   const handleMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (e.button === 1 || e.button === 0) {
       setIsDragging(true);
       setStartPos({
@@ -130,6 +134,8 @@ const GoalTracker = () => {
   };
 
   const handleMouseMove = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (isDragging) {
       setTransform((t) => ({
         ...t,
@@ -139,7 +145,9 @@ const GoalTracker = () => {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
   };
 
@@ -173,15 +181,21 @@ const GoalTracker = () => {
 
   const renderGoalCard = (goal) => {
     return (
-      <GoalCard
-        key={goal.id}
-        id={goal.id}
-        title={goal.title}
-        type={goal.type}
-        progress={goal.progress}
-        description={goal.description}
-        position={goal.position}
-      />
+      <div 
+        key={goal.id} 
+        onClick={() => {
+          openGoalCard(goal);
+        }}
+      >
+        <GoalCard
+          id={goal.id}
+          title={goal.title}
+          type={goal.type}
+          progress={goal.progress}
+          description={goal.description}
+          position={goal.position}
+        />
+      </div>
     );
   };
 

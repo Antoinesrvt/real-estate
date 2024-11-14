@@ -5,7 +5,7 @@ import React from 'react'
 import { fr } from 'date-fns/locale';
 import { formatDistance } from 'date-fns';
 import { useState, useEffect } from 'react';
-import { EventUpdate } from '../../../types';
+import { EventUpdate } from '../../../../types';
 
 
 const EventUpdateCard = ({ update }: { update: EventUpdate }) => {

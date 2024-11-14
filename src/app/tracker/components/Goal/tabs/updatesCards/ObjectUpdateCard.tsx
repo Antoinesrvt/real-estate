@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistance } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { ObjectUpdate } from '../../../types';
+import { ObjectUpdate } from '../../../../types';
 
 import { SelectedObject } from '../Updates';
 

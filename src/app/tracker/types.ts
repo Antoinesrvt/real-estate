@@ -10,16 +10,60 @@ export interface User {
   avatar: string;
 }
 
-export interface Task {
-  id: string | number;
+export type TaskStatus = 'todo' | 'in_progress' | 'completed';
+export type TaskPriority = 'low' | 'medium' | 'high';
+export type RecurringFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface Tag {
+  id: string;
+  name: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export interface SubTask {
+  id: string;
   title: string;
   completed: boolean;
-  deadline: string;
-  alert?: string;
+}
+
+export interface TaskTemplate {
+  id: string;
+  title: string;
   description?: string;
-  assignees?: User[];
-  priority?: Priority;
-  status?: Status;
+  estimatedTime?: number;
+  priority: TaskPriority;
+  checklist: ChecklistItem[];
+  category?: string;
+  labels?: string[];
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  deadline?: string;
+  alert?: string;
+  assignees: User[];
+  estimatedTime?: number;
+  timeSpent?: number;
+  subtasks: SubTask[];
+  checklist: ChecklistItem[];
+  recurring?: {
+    frequency: RecurringFrequency;
+    endDate?: string;
+  };
+  category?: string;
+  labels?: string[];
+  templateId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Milestone {
@@ -133,16 +177,6 @@ export interface Risk {
   title: string;
 }
 
-export interface Metrics {
-  timeSpent: number;
-  estimatedTimeLeft: number;
-  budget: {
-    allocated: number;
-    spent: number;
-  };
-  risks: Risk[];
-}
-
 export interface GoalDetails {
   startDate: string;
   deadline: string;
@@ -151,6 +185,7 @@ export interface GoalDetails {
   assignees: User[];
   description: string;
   tasks: Task[];
+  taskTemplates: TaskTemplate[];
   milestones: Milestone[];
   dependencies: {
     blockedBy: Dependency[];
@@ -173,6 +208,13 @@ export interface GoalDetails {
       tasks: boolean;
     };
   };
+  kpis: KPI[];
+  historicalData: {
+    tasks: Array<{ date: string; completed: number; total: number }>;
+    budget: Array<{ date: string; spent: number }>;
+    time: Array<{ date: string; spent: number }>;
+  };
+  tags?: Tag[];
 }
 
 export interface Goal {
@@ -200,4 +242,100 @@ export interface StylesByType {
   action: TypeStyles;
   strategie: TypeStyles;
   vision: TypeStyles;
+}
+
+export interface BudgetMetrics {
+  allocated: number;
+  spent: number;
+  currency?: string;
+  lastUpdated?: string;
+  breakdown?: {
+    category: string;
+    amount: number;
+    percentage: number;
+  }[];
+}
+
+export interface TimeMetrics {
+  timeSpent: number;
+  estimated: number;
+  estimatedTimeLeft: number;
+  unit: 'hours' | 'days' | 'weeks';
+  lastUpdated?: string;
+  timeline?: {
+    planned: number;
+    actual: number;
+    variance: number;
+  };
+}
+
+export interface RiskMetrics {
+  risks: Risk[];
+  riskScore?: number;
+  lastAssessment?: string;
+  mitigationPlans?: {
+    riskId: string;
+    plan: string;
+    status: 'planned' | 'in_progress' | 'completed';
+  }[];
+}
+
+export interface KPI {
+  id: string;
+  name: string;
+  value: number;
+  target: number;
+  unit: string;
+  type: "percentage" | "number" | "currency" | "time";
+  color?: string;
+  trend?: {
+    value: number;
+    direction: "up" | "down" | "stable";
+    isPositive: boolean;
+  };
+  history?: Array<{
+    date: string;
+    value: number;
+  }>;
+}
+
+
+export interface PerformanceMetrics {
+  kpis?: KPI[];
+  qualityScore?: number;
+  efficiency?: number;
+}
+
+export interface Metrics {
+  time: TimeMetrics;
+  budget: BudgetMetrics;
+  risks: RiskMetrics;
+  performance?: PerformanceMetrics;
+  lastUpdated: string;
+  nextReview?: string;
+}
+
+
+export interface HistoricalData {
+  tasks: Array<{ date: string; completed: number; total: number }>;
+  budget: Array<{ date: string; spent: number }>;
+  time: Array<{ date: string; spent: number }>;
+}
+
+export interface Prediction {
+  time: {
+    trend: number;
+    estimatedCompletion: string;
+    predictedTotal: number;
+  };
+  budget: {
+    trend: number;
+    predictedTotal: number;
+    burndownRate: number;
+  };
+  tasks: {
+    trend: number;
+    completionRate: number;
+    predictedEndDate: string;
+  };
 }

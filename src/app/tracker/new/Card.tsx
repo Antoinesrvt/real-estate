@@ -64,17 +64,17 @@ export const GoalCard = ({
   const router = useRouter();
 
   return (
-    <motion.div
-      key={id}
-      className="absolute"
-      style={{
-        left: position.x,
-        top: position.y,
-      }}
-    >
+    // <motion.div
+    //   key={id}
+    //   className="absolute"
+    //   style={{
+    //     left: position.x,
+    //     top: position.y,
+    //   }}
+    // >
       <Card
         className={`
-          relative w-64 h-36 backdrop-blur-xl
+          backdrop-blur-xl
           ${styles.background} ${styles.border} border
           hover:border-opacity-50 rounded-xl
           transition-all duration-300 ease-in-out
@@ -123,7 +123,7 @@ export const GoalCard = ({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    // </motion.div>
   );
 };
 

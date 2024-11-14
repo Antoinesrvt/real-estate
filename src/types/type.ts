@@ -1,4 +1,4 @@
-import { Goal } from "./page";
+import { Goal } from "../app/tracker/new/page";
 
 export const goalsData: Goal[] = [
   {

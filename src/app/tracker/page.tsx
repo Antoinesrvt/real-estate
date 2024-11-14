@@ -1,415 +1,472 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, ArrowRight, ZoomIn, ZoomOut, Map } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
-// Add interfaces for type definitions
-interface Goal {
-  id: string;
-  title: string;
-  type: 'personnel' | 'travail' | 'experience';
-  progress: number;
-  level: number;
-  row: number;
-}
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Target, Zap, Shield, Users, BarChart3, ArrowDown, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import Testimonials from "./components/landing/testimonials";
+import ProcessFlow from "./components/landing/ProcessFlow";
+import CompareFeatures from "./components/landing/CompareFeatures";
+import FAQ from "./components/landing/FAQ";
+import PricingPlans from "./components/landing/PricingPlan";
+import ContactSection from "./components/landing/ContactSection";
 
-interface ScrollPosition {
-  x: number;
-  y: number;
-}
-
-interface TypeStyles {
-  background: string;
-  border: string;
-  text: string;
-  shadow: string;
-  glow: string;
-}
-
-interface PatternBackgroundProps {
-  type: Goal['type'];
-}
-
-interface CurvedConnectionProps {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-}
-
-// ... previous imports and interfaces ...
-
-const Goals: Goal[] = [
-    {
-      id: "1",
-      title: "Apprendre TypeScript",
-      type: "travail",
-      progress: 75,
-      level: 0,
-      row: 0,
+const LandingPage = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+        delayChildren: 0.2,
+        duration: 0.6,
+        ease: "easeOut"
+      },
     },
-    {
-      id: "2",
-      title: "Méditer 10min/jour",
-      type: "personnel",
-      progress: 100,
-      level: 0,
-      row: 1,
-    },
-    {
-      id: "3",
-      title: "Maîtriser React",
-      type: "travail",
-      progress: 60,
-      level: 1,
-      row: 0,
-    },
-    {
-      id: "4",
-      title: "Voyage au Japon",
-      type: "experience",
-      progress: 30,
-      level: 1,
-      row: 1,
-    },
-    {
-      id: "5",
-      title: "Lire 12 livres",
-      type: "personnel",
-      progress: 50,
-      level: 2,
-      row: 0,
-    },
-    {
-      id: "6",
-      title: "Certification AWS",
-      type: "travail",
-      progress: 25,
-      level: 2,
-      row: 1,
-    },
-    {
-      id: "7",
-      title: "Marathon",
-      type: "experience",
-      progress: 15,
-      level: 3,
-      row: 0,
-    },
-    {
-      id: "8",
-      title: "Side Project",
-      type: "travail",
-      progress: 40,
-      level: 3,
-      row: 1,
-  },
-];
+  };
 
-const GoalTracker: React.FC = () => {
-  const [goals] = useState<Goal[]>(Goals);
-  const [zoom, setZoom] = useState<number>(1);
-  const [showMinimap, setShowMinimap] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [scrollPosition, setScrollPosition] = useState<ScrollPosition>({ x: 0, y: 0 });
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.52, 1, 0.36, 1], // Custom cubic bezier for smooth deceleration
+      }
+    },
+  };
 
-  // Update event handler with type
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>): void => {
-    if (containerRef.current) {
-      setScrollPosition({
-        x: containerRef.current.scrollLeft,
-        y: containerRef.current.scrollTop,
-      });
+  const handleScroll = () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  };
+
+  const featureContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1]
+      },
+    },
+  };
+
+  const featureCardVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1]
+      }
     }
   };
 
-  // Add types to components
-  const PatternBackground: React.FC<PatternBackgroundProps> = ({ type }) => (
-    <svg
-      className="absolute inset-0 w-full h-full opacity-5"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <pattern
-        id={`pattern-${type}`}
-        x="0"
-        y="0"
-        width="20"
-        height="20"
-        patternUnits="userSpaceOnUse"
-      >
-        <circle cx="10" cy="10" r="1" fill="currentColor" />
-      </pattern>
-      <rect width="100%" height="100%" fill={`url(#pattern-${type})`} />
-    </svg>
-  );
-
-  const CurvedConnection: React.FC<CurvedConnectionProps> = ({ startX, startY, endX, endY }) => (
-    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-      <path
-        d={`M ${startX} ${startY} C ${(startX + endX) / 2} ${startY}, ${
-          (startX + endX) / 2
-        } ${endY}, ${endX} ${endY}`}
-        stroke="currentColor"
-        strokeWidth="2"
-        fill="none"
-        strokeDasharray="5,5"
-        className="text-white/20"
-      />
-    </svg>
-  );
-
-  const typeStyles: Record<Goal['type'], TypeStyles> = {
-    personnel: {
-      background: "bg-purple-500/10",
-      border: "border-purple-400/20",
-      text: "text-purple-100",
-      shadow: "shadow-purple-500/20",
-      glow: "after:bg-purple-500/5",
-    },
-    travail: {
-      background: "bg-blue-500/10",
-      border: "border-blue-400/20",
-      text: "text-blue-100",
-      shadow: "shadow-blue-500/20",
-      glow: "after:bg-blue-500/5",
-    },
-    experience: {
-      background: "bg-green-500/10",
-      border: "border-green-400/20",
-      text: "text-green-100",
-      shadow: "shadow-green-500/20",
-      glow: "after:bg-green-500/5",
-    },
-  };
-
-  const renderGoalCard = (goal: Goal): JSX.Element => {
-    const styles = typeStyles[goal.type];
-
-    return (
-      <motion.div
-        key={goal.id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative group"
-      >
-        <div
-          className={`
-          absolute -inset-2 rounded-xl blur-xl opacity-0 group-hover:opacity-100
-          transition-opacity duration-300 ${styles.glow} z-0
-        `}
-        />
-
-        <Card
-          className={`
-          relative w-64 h-36 backdrop-blur-xl
-          ${styles.background} ${styles.border} border
-          hover:border-opacity-50 rounded-xl
-          transition-all duration-300 ease-in-out
-          hover:shadow-lg hover:shadow-black/20 ${styles.shadow}
-          transform hover:-translate-y-1 hover:scale-105
-          before:absolute before:inset-0 before:rounded-xl
-          before:backdrop-blur-xl before:backdrop-saturate-150
-          overflow-hidden z-10
-        `}
-        >
-          <PatternBackground type={goal.type} />
-
-          <div
-            className={`
-            absolute bottom-0 left-0 h-1 rounded-b-xl
-            transition-all duration-300 ease-out
-            ${
-              goal.type === "personnel"
-                ? "bg-purple-400/50"
-                : goal.type === "travail"
-                ? "bg-blue-400/50"
-                : "bg-green-400/50"
-            }
-          `}
-            style={{ width: `${goal.progress}%` }}
-          />
-
-          <CardContent className="p-4 h-full flex flex-col justify-between relative z-20">
-            <div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className={`text-xs opacity-70 mb-1 ${styles.text}`}
-              >
-                {goal.type.charAt(0).toUpperCase() + goal.type.slice(1)}
-              </motion.div>
-              <motion.div
-                className={`font-semibold ${styles.text} text-lg`}
-                layoutId={`title-${goal.id}`}
-              >
-                {goal.title}
-              </motion.div>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <div
-                  className={`
-                  h-2 w-2 rounded-full transition-colors duration-300
-                  ${goal.progress >= 100 ? "bg-green-400" : "bg-white/30"}
-                `}
-                />
-                <span className="text-white/80 text-sm">{goal.progress}%</span>
-              </motion.div>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-1 rounded-full hover:bg-white/10 transition-colors"
-              >
-                <Plus className="h-4 w-4 text-white/60 hover:text-white/90" />
-              </motion.button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  };
-
-  const renderColumn = (level: number): JSX.Element => {
-    const levelGoals = goals.filter((g) => g.level === level);
-    const rows = Math.max(...levelGoals.map((g) => g.row)) + 1;
-
-    return (
-      <motion.div
-        className="flex flex-col gap-6"
-        style={{ scale: zoom }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      >
-        {[...Array(rows)].map((_, rowIndex) => {
-          const goalInRow = levelGoals.find((g) => g.row === rowIndex);
-          return (
-            <div
-              key={`${level}-${rowIndex}`}
-              className="h-36 relative"
-              style={{ opacity: goalInRow ? 1 : 0.2 }}
-            >
-              {goalInRow && renderGoalCard(goalInRow)}
-            </div>
-          );
-        })}
-      </motion.div>
-    );
-  };
-
-  // Composant Minimap
-  const Minimap: React.FC = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="fixed bottom-4 right-4 bg-black/50 backdrop-blur-md
-                 rounded-lg p-4 border border-white/10"
-    >
-      <div className="text-xs text-white/60 mb-2">Vue d'ensemble</div>
-      <div className="w-48 h-32 relative">
-        {/* Représentation miniature des colonnes */}
-        <div className="flex gap-2 h-full">
-          {[0, 1, 2, 3].map((level) => (
-            <div key={level} className="flex-1 bg-white/5 rounded" />
-          ))}
-        </div>
-        {/* Indicateur de position visible */}
-        <div
-          className="absolute bg-white/20 rounded"
-          style={{
-            left: `${
-              (scrollPosition.x / (containerRef.current?.scrollWidth || 0)) * 100
-            }%`,
-            top: `${
-              (scrollPosition.y / (containerRef.current?.scrollHeight || 0)) * 100
-            }%`,
-            width: "25%",
-            height: "25%",
-          }}
-        />
-      </div>
-    </motion.div>
-  );
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      <div
-        className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))]
-                      from-slate-900 via-slate-800 to-slate-900"
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Hero Section with enhanced gradients */}
+      <div className="relative overflow-hidden h-screen flex flex-col justify-between">
+        {/* Animated background gradients */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-blue-500/20 to-green-500/20 blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 via-blue-500/10 to-green-500/10 blur-3xl animate-[pulse_10s_ease-in-out_infinite_1s]" />
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
+        </div>
 
-      <div className="relative z-10 p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
-            <motion.h1
+        <div className="container mx-auto px-4 flex flex-col min-h-screen justify-between py-12 relative">
+          {/* Top badge */}
+          <motion.div variants={itemVariants} className="text-center pt-8">
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-bold"
+              transition={{ duration: 1, delay: 0.5 }}
+              className="relative inline-block"
             >
-              Vision & Objectifs
-            </motion.h1>
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="px-8 py-4 rounded-full bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-green-500/20 border border-white/20 text-white text-sm backdrop-blur-sm inline-flex items-center gap-2 shadow-lg shadow-purple-500/20"
+              >
+                <Sparkles className="h-4 w-4 text-purple-300" />
+                Découvrez la nouvelle façon de gérer vos objectifs
+                <Sparkles className="h-4 w-4 text-green-300" />
+              </motion.span>
+              <motion.div
+                className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-purple-500/50 via-blue-500/50 to-green-500/50 blur-md -z-10"
+                animate={{
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+          </motion.div>
 
-            <div className="flex gap-4">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 rounded-full hover:bg-white/10"
-                onClick={() => setZoom((z) => Math.min(z + 0.1, 1.5))}
-              >
-                <ZoomIn className="h-5 w-5 text-white/60" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 rounded-full hover:bg-white/10"
-                onClick={() => setZoom((z) => Math.max(z - 0.1, 0.5))}
-              >
-                <ZoomOut className="h-5 w-5 text-white/60" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-2 rounded-full hover:bg-white/10"
-                onClick={() => setShowMinimap((s) => !s)}
-              >
-                <Map className="h-5 w-5 text-white/60" />
-              </motion.button>
-            </div>
-          </div>
-
-          <div
-            ref={containerRef}
-            className="overflow-auto pb-8 max-h-[calc(100vh-12rem)]"
-            onScroll={handleScroll}
+          {/* Center content */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="max-w-5xl mx-auto text-center space-y-12 my-auto"
           >
-            <div className="flex gap-24 min-w-max p-4">
-              {[0, 1, 2, 3].map((level) => (
-                <div key={level} className="flex flex-col gap-6">
+            <motion.div
+              variants={itemVariants}
+              className="space-y-8"
+              custom={1}
+            >
+              <motion.h1
+                className="text-6xl md:text-7xl font-bold leading-tight"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 1,
+                  delay: 0.8,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                  Visualisez
+                </span>{" "}
+                <span className="text-white">et</span>{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
+                  Réalisez
+                </span>
+              </motion.h1>
+
+              <motion.p
+                className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                  duration: 1,
+                  delay: 1.2,
+                  ease: "easeOut",
+                }}
+              >
+                Une plateforme révolutionnaire qui transforme vos ambitions en
+                succès mesurables, avec une clarté visuelle exceptionnelle.
+              </motion.p>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6"
+              custom={2}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-purple-500/20 w-full sm:w-auto transition-all duration-300"
+                >
+                  Démarrer Gratuitement
                   <motion.div
-                    className="text-sm text-white/50 mb-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: level * 0.1 }}
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 5 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    Niveau {level + 1}
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </motion.div>
-                  {renderColumn(level)}
-                </div>
-              ))}
-            </div>
-          </div>
+                </Button>
+              </motion.div>
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-purple-400/20 bg-purple-500/10 text-white hover:bg-purple-500/20 px-8 py-6 text-lg rounded-xl backdrop-blur-sm w-full sm:w-auto"
+              >
+                Voir la Démo
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Bottom scroll button */}
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ y: 5 }}
+            className="flex flex-col items-center text-white/80 hover:text-white transition-colors gap-3 pb-8 mx-auto group"
+            onClick={handleScroll}
+          >
+            <span className="text-sm font-medium tracking-wider uppercase">
+              Découvrir plus
+            </span>
+            <motion.div
+              className="relative"
+              animate={{
+                y: [0, 8, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <ArrowDown className="h-5 w-5" />
+              <motion.div
+                className="absolute inset-0 blur-sm bg-white/30"
+                animate={{
+                  opacity: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+          </motion.button>
         </div>
       </div>
 
-      <AnimatePresence>{showMinimap && <Minimap />}</AnimatePresence>
+      {/* Features Section with enhanced cards */}
+      <div className="relative overflow-hidden">
+        {/* Enhanced background effects */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-blue-500/5 to-green-500/5 blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-10" />
+        </div>
+
+        <div className="container mx-auto px-4 py-32 relative">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-16 space-y-4"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-green-400">
+              Fonctionnalités Principales
+            </h2>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+              Des outils puissants pour transformer vos objectifs en
+              réalisations concrètes
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={featureContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                icon: <Target className="h-10 w-10" />,
+                title: "Visualisation Stratégique",
+                description:
+                  "Cartographiez vos objectifs avec une clarté cristalline.",
+                gradient: "from-purple-500 to-blue-500",
+                shadowColor: "purple",
+              },
+              {
+                icon: <Zap className="h-10 w-10" />,
+                title: "Suivi en Temps Réel",
+                description: "Adaptez votre stratégie instantanément.",
+                gradient: "from-blue-500 to-green-500",
+                shadowColor: "blue",
+              },
+              {
+                icon: <Shield className="h-10 w-10" />,
+                title: "Sécurité Intégrée",
+                description: "Protection maximale de vos données.",
+                gradient: "from-green-500 to-emerald-500",
+                shadowColor: "green",
+              },
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={featureCardVariants}
+                whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                className="relative group"
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500`}
+                />
+
+                <Card
+                  className="relative p-8 bg-white/5 border border-white/10 backdrop-blur-xl
+                  hover:border-white/20 transition-all duration-500 rounded-xl
+                  shadow-lg hover:shadow-xl overflow-hidden"
+                >
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative space-y-6">
+                    {/* Icon container with gradient background */}
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.3 }}
+                      className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} bg-opacity-10 w-fit
+                        shadow-lg shadow-${feature.shadowColor}-500/20`}
+                    >
+                      <div className="text-white">{feature.icon}</div>
+                    </motion.div>
+
+                    {/* Content */}
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-semibold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-all duration-300">
+                        {feature.title}
+                      </h3>
+                      <p className="text-white/70 text-lg leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+
+                    {/* Subtle arrow indicator */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      whileHover={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute bottom-4 right-4 text-white/50 group-hover:text-white"
+                    >
+                      <ArrowRight className="h-5 w-5" />
+                    </motion.div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+      {/* <Testimonials /> */}
+      <ProcessFlow />
+      <PricingPlans />
+      {/* <CompareFeatures/> */}
+      {/* Stats Section with enhanced design */}
+
+      <div className="relative border-y border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-emerald-500/5 blur-2xl" />
+        <div className="container mx-auto px-4 py-24 relative">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            {[
+              {
+                icon: <Users className="h-6 w-6" />,
+                value: "10K+",
+                label: "Utilisateurs Actifs",
+                gradient: "from-purple-500/10 to-blue-500/10",
+              },
+              {
+                icon: <Target className="h-6 w-6" />,
+                value: "50K+",
+                label: "Objectifs Atteints",
+                gradient: "from-blue-500/10 to-emerald-500/10",
+              },
+              {
+                icon: <BarChart3 className="h-6 w-6" />,
+                value: "98%",
+                label: "Satisfaction Client",
+                gradient: "from-emerald-500/10 to-amber-500/10",
+              },
+              {
+                icon: <Zap className="h-6 w-6" />,
+                value: "24/7",
+                label: "Support Disponible",
+                gradient: "from-amber-500/10 to-purple-500/10",
+              },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                className="relative group"
+              >
+                <Card
+                  className={`p-8 bg-gradient-to-br ${stat.gradient} border-white/10 backdrop-blur-xl
+                  hover:border-white/20 transition-all duration-300 rounded-xl
+                  shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30`}
+                >
+                  <div className="space-y-4">
+                    <div className="p-3 rounded-xl bg-white/5 w-fit group-hover:scale-110 transition-transform duration-300">
+                      {stat.icon}
+                    </div>
+                    <div className="text-3xl font-bold text-white">
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-white/60">{stat.label}</div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+      <ContactSection />
+
+      <FAQ />
+
+      {/* CTA Section with enhanced design */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-emerald-500/10 blur-3xl" />
+        <div className="container mx-auto px-4 py-32 relative">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto"
+          >
+            <Card className="p-12 bg-white/5 border-white/10 backdrop-blur-xl rounded-2xl">
+              <motion.div
+                variants={itemVariants}
+                className="text-center space-y-8"
+              >
+                <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400">
+                  Prêt à Transformer vos Objectifs en Réalité ?
+                </h2>
+
+                <p className="text-xl text-white/70 max-w-2xl mx-auto">
+                  Rejoignez des milliers d'utilisateurs qui ont déjà
+                  révolutionné leur approche de la gestion de projets.
+                </p>
+
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 via-blue-500 to-emerald-500 hover:from-purple-600 hover:via-blue-600 hover:to-emerald-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-purple-500/20 w-full sm:w-auto"
+                  >
+                    Commencer Gratuitement
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-2 border-white/10 hover:border-white/20 text-white hover:bg-white/5 px-8 py-6 text-lg rounded-xl backdrop-blur-sm w-full sm:w-auto group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="relative">Voir la Démo</span>
+                    </Button>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default GoalTracker;
+export default LandingPage;

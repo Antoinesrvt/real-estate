@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { GoalDetails, Resource, TypeStyles } from '../../types';
+import { GoalDetails, Resource, TypeStyles } from '../../../types';
 
 interface ResourceTabProps {
   goalDetails: GoalDetails;
