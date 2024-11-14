@@ -318,11 +318,24 @@ export interface Metrics {
 }
 
 
-export interface HistoricalData {
-  tasks: Array<{ date: string; completed: number; total: number }>;
-  budget: Array<{ date: string; spent: number }>;
-  time: Array<{ date: string; spent: number }>;
+export interface HistoricalDataPoint {
+  date: string;
+  metrics: {
+    budget: {
+      spent: number;
+      allocated: number;
+    };
+    time: {
+      timeSpent: number;
+      estimated: number;
+    };
+    performance?: {
+      efficiency: number;
+    };
+  };
 }
+
+export type HistoricalData = HistoricalDataPoint[];
 
 export interface Prediction {
   time: {

@@ -109,7 +109,7 @@ export default function Tasks({
       </div>
 
       {/* Progress Overview */}
-      <Card className="bg-white/5 border-white/10">
+      {/* <Card className="bg-white/5 border-white/10">
         <CardContent className="p-4">
           <div className="grid grid-cols-3 gap-6">
             <div className="space-y-2">
@@ -135,7 +135,7 @@ export default function Tasks({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Views */}
       <AnimatePresence mode="wait">

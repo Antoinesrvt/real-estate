@@ -39,7 +39,7 @@ const GoalDetailCard = () => {
       >
         <GoalHeader
           goal={selectedGoal}
-          goalDetails={mockGoalDetails as GoalDetails}
+          goalDetails={mockGoalDetails as unknown as GoalDetails}
           styles={styles}
           onClose={closeGoalCard}
         />
@@ -52,7 +52,7 @@ const GoalDetailCard = () => {
 
         <GoalContent
           activeTab={activeTab}
-          goalDetails={mockGoalDetails as GoalDetails}
+          goalDetails={mockGoalDetails as unknown as GoalDetails}
           styles={styles}
         />
       </motion.div>

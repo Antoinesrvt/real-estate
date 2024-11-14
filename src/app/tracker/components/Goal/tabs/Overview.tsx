@@ -9,6 +9,7 @@ import { TagsSection } from "./overview/components/TagsSection";
 import { MetricsSection } from "./overview/components/MetricsSection";
 import { DependenciesSection } from "./overview/components/DependenciesSection";
 import { TasksSection } from "./overview/components/TasksSection";
+import { StatisticsSection } from "./overview/components/StatisticsSection";
 
 export default function Overview({
   goalDetails,
@@ -103,30 +104,7 @@ export default function Overview({
           <h3 className="text-lg font-semibold text-white mb-4">
             Statistiques
           </h3>
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm text-white/60 mb-2">Tâches complétées</div>
-              <div className="text-2xl font-bold text-white">
-                {goalDetails.tasks.filter(t => t.status === 'completed').length}/
-                {goalDetails.tasks.length}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-white/60 mb-2">Jalons atteints</div>
-              <div className="text-2xl font-bold text-white">
-                {goalDetails.milestones.filter(m => m.completed).length}/
-                {goalDetails.milestones.length}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-white/60 mb-2">Ressources</div>
-              <div className="text-2xl font-bold text-white">
-                {goalDetails.resources.length}
-              </div>
-            </div>
-          </div>
+          <StatisticsSection goalDetails={goalDetails} />
         </CardContent>
       </Card>
     </div>

@@ -1,7 +1,9 @@
 import { 
   User, Task, Milestone, Resource, Dependency, 
   Update, Risk, Metrics, Goal, StylesByType, KPI, TaskTemplate,
-  GoalDetails
+  GoalDetails,
+  Prediction,
+  HistoricalData
 } from '../types';
 
 // Mock Users
@@ -163,11 +165,15 @@ export const mockKPIs: KPI[] = [
       isPositive: true
     },
     history: [
-      { date: "2024-02-15", value: 75 },
-      { date: "2024-02-22", value: 78 },
-      { date: "2024-03-01", value: 80 },
-      { date: "2024-03-08", value: 82 },
-      { date: "2024-03-15", value: 85 }
+      { date: "2024-01-15", value: 70 },
+      { date: "2024-01-22", value: 72 },
+      { date: "2024-01-29", value: 75 },
+      { date: "2024-02-05", value: 78 },
+      { date: "2024-02-12", value: 80 },
+      { date: "2024-02-19", value: 82 },
+      { date: "2024-02-26", value: 83 },
+      { date: "2024-03-04", value: 84 },
+      { date: "2024-03-11", value: 85 }
     ]
   },
   {
@@ -184,95 +190,166 @@ export const mockKPIs: KPI[] = [
       isPositive: true
     },
     history: [
-      { date: "2024-02-15", value: 88 },
-      { date: "2024-02-22", value: 89 },
-      { date: "2024-03-01", value: 90 },
-      { date: "2024-03-08", value: 91 },
-      { date: "2024-03-15", value: 92 }
+      { date: "2024-01-15", value: 85 },
+      { date: "2024-01-22", value: 86 },
+      { date: "2024-01-29", value: 87 },
+      { date: "2024-02-05", value: 88 },
+      { date: "2024-02-12", value: 89 },
+      { date: "2024-02-19", value: 90 },
+      { date: "2024-02-26", value: 91 },
+      { date: "2024-03-04", value: 91 },
+      { date: "2024-03-11", value: 92 }
+    ]
+  },
+  {
+    id: "3",
+    name: "Coût par Feature",
+    value: 2800,
+    target: 2500,
+    unit: "€",
+    type: "currency",
+    color: "#F87171",
+    trend: {
+      value: 8,
+      direction: "down",
+      isPositive: true
+    },
+    history: [
+      { date: "2024-01-15", value: 3200 },
+      { date: "2024-01-22", value: 3100 },
+      { date: "2024-01-29", value: 3000 },
+      { date: "2024-02-05", value: 2950 },
+      { date: "2024-02-12", value: 2900 },
+      { date: "2024-02-19", value: 2850 },
+      { date: "2024-02-26", value: 2825 },
+      { date: "2024-03-04", value: 2810 },
+      { date: "2024-03-11", value: 2800 }
     ]
   }
 ];
 
-// Mock Historical Data
-export const mockHistoricalData = {
-  tasks: [
-    { date: "2024-02-15", completed: 5, total: 20 },
-    { date: "2024-02-22", completed: 8, total: 20 },
-    { date: "2024-03-01", completed: 12, total: 22 },
-    { date: "2024-03-08", completed: 15, total: 22 },
-    { date: "2024-03-15", completed: 18, total: 25 }
-  ],
-  budget: [
-    { date: "2024-02-15", spent: 10000 },
-    { date: "2024-02-22", spent: 15000 },
-    { date: "2024-03-01", spent: 22000 },
-    { date: "2024-03-08", spent: 26000 },
-    { date: "2024-03-15", spent: 30000 }
-  ],
-  time: [
-    { date: "2024-02-15", spent: 40 },
-    { date: "2024-02-22", spent: 65 },
-    { date: "2024-03-01", spent: 85 },
-    { date: "2024-03-08", spent: 100 },
-    { date: "2024-03-15", spent: 120 }
-  ]
+// Enhanced Historical Data with more data points
+export const mockHistoricalData: HistoricalData = [
+  {
+    date: "2024-01-01",
+    metrics: {
+      budget: { spent: 10000, allocated: 50000 },
+      time: { timeSpent: 120, estimated: 500 },
+      performance: { efficiency: 85 }
+    }
+  },
+  {
+    date: "2024-01-15",
+    metrics: {
+      budget: { spent: 15000, allocated: 50000 },
+      time: { timeSpent: 180, estimated: 500 },
+      performance: { efficiency: 87 }
+    }
+  },
+  {
+    date: "2024-02-01",
+    metrics: {
+      budget: { spent: 22000, allocated: 50000 },
+      time: { timeSpent: 240, estimated: 500 },
+      performance: { efficiency: 88 }
+    }
+  },
+  {
+    date: "2024-02-15",
+    metrics: {
+      budget: { spent: 28000, allocated: 50000 },
+      time: { timeSpent: 310, estimated: 500 },
+      performance: { efficiency: 90 }
+    }
+  },
+  {
+    date: "2024-03-01",
+    metrics: {
+      budget: { spent: 35000, allocated: 50000 },
+      time: { timeSpent: 380, estimated: 500 },
+      performance: { efficiency: 92 }
+    }
+  },
+  {
+    date: "2024-03-15",
+    metrics: {
+      budget: { spent: 42000, allocated: 50000 },
+      time: { timeSpent: 420, estimated: 500 },
+      performance: { efficiency: 91 }
+    }
+  }
+];
+
+// Enhanced Predictions with more detailed data
+export const mockPredictions: Prediction = {
+  time: {
+    trend: 1.2,
+    estimatedCompletion: "2024-07-15",
+    predictedTotal: 520
+  },
+  budget: {
+    trend: 0.95,
+    predictedTotal: 48000,
+    burndownRate: 12000
+  },
+  tasks: {
+    trend: 1.1,
+    completionRate: 8.5,
+    predictedEndDate: "2024-07-01"
+  }
 };
 
+// Enhanced Metrics with more detailed data
 export const mockMetrics: Metrics = {
   time: {
-    timeSpent: 120,
-    estimated: 200,
+    timeSpent: 420,
+    estimated: 500,
     estimatedTimeLeft: 80,
-    unit: 'hours',
+    unit: "hours",
     lastUpdated: "2024-03-15T10:00:00Z",
     timeline: {
-      planned: 200,
-      actual: 120,
-      variance: -20
+      planned: 450,
+      actual: 420,
+      variance: -30
     }
   },
   budget: {
     allocated: 50000,
-    spent: 30000,
+    spent: 42000,
     currency: "EUR",
     lastUpdated: "2024-03-15T10:00:00Z",
     breakdown: [
-      {
-        category: "Development",
-        amount: 20000,
-        percentage: 66.7
-      },
-      {
-        category: "Design",
-        amount: 8000,
-        percentage: 26.7
-      },
-      {
-        category: "Testing",
-        amount: 2000,
-        percentage: 6.6
-      }
+      { category: "Development", amount: 25000, percentage: 59.5 },
+      { category: "Design", amount: 10000, percentage: 23.8 },
+      { category: "Infrastructure", amount: 7000, percentage: 16.7 }
     ]
   },
   risks: {
     risks: [
-      { severity: "medium", title: "Délai serré pour les tests" },
-      { severity: "low", title: "Dépendance technique" }
+      { severity: "high", title: "Retard possible sur l'API" },
+      { severity: "medium", title: "Complexité technique sous-estimée" },
+      { severity: "medium", title: "Dépendance externe critique" },
+      { severity: "low", title: "Ressources limitées" }
     ],
-    riskScore: 0.4,
-    lastAssessment: "2024-03-15T10:00:00Z",
+    riskScore: 65,
+    lastAssessment: "2024-03-10T10:00:00Z",
     mitigationPlans: [
       {
         riskId: "1",
-        plan: "Augmenter l'équipe de test",
+        plan: "Ajout de ressources supplémentaires",
         status: "in_progress"
+      },
+      {
+        riskId: "2",
+        plan: "Révision de l'architecture",
+        status: "planned"
       }
     ]
   },
   performance: {
-    kpis: mockKPIs,
-    qualityScore: 0.88,
-    efficiency: 0.92
+    efficiency: 91,
+    qualityScore: 88,
+    kpis: mockKPIs
   },
   lastUpdated: "2024-03-15T10:00:00Z",
   nextReview: "2024-03-22T10:00:00Z"
@@ -320,47 +397,7 @@ export const mockGoal: Goal = {
   level: 0,
   progress: 90,
   connections: [5],
-  description: "Développement Frontend",
-  details: {
-    startDate: "2024-01-15",
-    deadline: "2024-06-30",
-    status: "En cours",
-    priority: "high",
-    assignees: mockUsers.slice(0, 2),
-    team: mockUsers,
-    description:
-      "Ce projet vise à développer une application mobile innovante qui révolutionnera la façon dont les utilisateurs interagissent avec leurs objectifs personnels et professionnels.",
-    tasks: mockTasks,
-    taskTemplates: mockTaskTemplates,
-    milestones: mockMilestones,
-    dependencies: {
-      blockedBy: [
-        { id: 101, title: "Infrastructure Cloud", status: "completed" },
-        { id: 102, title: "API Backend", status: "in_progress" },
-      ],
-      blocking: [
-        { id: 201, title: "Déploiement Production", status: "pending" },
-      ],
-    }, 
-    metrics: mockMetrics,
-    kpis: mockKPIs, // Add KPIs to the goal details
-    historicalData: mockHistoricalData, // Add historical data
-    updates: mockUpdates,
-    resources: mockResources,
-    progress: 60,
-    updateSettings: {
-      allowComments: true,
-      allowReactions: true,
-      allowAttachments: true,
-      allowMentions: true,
-      notificationPreferences: {
-        mentions: true,
-        allUpdates: false,
-        milestones: true,
-        tasks: true,
-      },
-    },
-  },
+  description: "Développement Frontend"
 };
 
 // Base goal template with shared properties
@@ -520,102 +557,4 @@ export const typeStyles = {
 } as const;
 
 export type TypeStyles = typeof typeStyles[keyof typeof typeStyles];
-export const mockGoalDetails: GoalDetails = {
-  startDate: "2024-01-01",
-  deadline: "2024-12-31",
-  status: "in_progress",
-  priority: "high",
-  assignees: mockUsers.slice(0, 2),
-  team: mockUsers,
-  description: "Développement et déploiement d'une nouvelle plateforme e-commerce internationale",
-  tasks: mockTasks,
-  taskTemplates: mockTaskTemplates,
-  milestones: [
-    {
-      id: "m1",
-      title: "Phase 1: Analyse et Design",
-      description: "Analyse des besoins et conception de l'architecture",
-      date: "2024-03-31",
-      completed: true,
-      priority: "high",
-      tasksCount: 8,
-      completedTasksCount: 8,
-      assignees: mockUsers.slice(0, 2),
-      dependencies: []
-    },
-    {
-      id: "m2",
-      title: "Phase 2: Développement MVP",
-      description: "Développement des fonctionnalités core",
-      date: "2024-06-30",
-      completed: false,
-      priority: "high",
-      tasksCount: 12,
-      completedTasksCount: 4,
-      assignees: mockUsers.slice(1, 3),
-      dependencies: ["m1"]
-    },
-    {
-      id: "m3",
-      title: "Phase 3: Tests et Déploiement",
-      description: "Tests d'intégration et déploiement production",
-      date: "2024-09-30",
-      completed: false,
-      priority: "medium",
-      tasksCount: 10,
-      completedTasksCount: 0,
-      assignees: mockUsers.slice(2, 4),
-      dependencies: ["m2"]
-    }
-  ],
-  dependencies: {
-    blockedBy: [
-      { id: 201, title: "Infrastructure Cloud", status: "completed" },
-      { id: 202, title: "API Gateway", status: "in_progress" }
-    ],
-    blocking: [
-      { id: 301, title: "Marketing International", status: "pending" },
-      { id: 302, title: "Support Client 24/7", status: "pending" }
-    ]
-  },
-  updates: mockUpdates,
-  metrics: mockMetrics,
-  resources: [
-    ...mockResources,
-    {
-      id: "r2",
-      type: "file",
-      name: "Architecture_Technique.pdf",
-      url: "/files/architecture.pdf",
-      createdAt: "2024-03-16T10:00:00Z",
-      updatedAt: "2024-03-16T10:00:00Z",
-      description: "Documentation technique détaillée",
-      tags: ["documentation", "architecture"],
-      relations: {
-        milestoneId: "m1"
-      },
-      addedBy: mockUsers[1]
-    }
-  ],
-  progress: 35,
-  updateSettings: {
-    allowComments: true,
-    allowReactions: true,
-    allowAttachments: true,
-    allowMentions: true,
-    notificationPreferences: {
-      mentions: true,
-      allUpdates: true,
-      milestones: true,
-      tasks: true
-    }
-  },
-  kpis: mockKPIs,
-  historicalData: mockHistoricalData,
-  tags: [
-    { id: "t1", name: "e-commerce", color: "#60A5FA" },
-    { id: "t2", name: "international", color: "#34D399" },
-    { id: "t3", name: "high-priority", color: "#F87171" }
-  ]
-};
 
