@@ -1,6 +1,7 @@
 import { 
   User, Task, Milestone, Resource, Dependency, 
-  Update, Risk, Metrics, Goal, StylesByType, KPI, TaskTemplate
+  Update, Risk, Metrics, Goal, StylesByType, KPI, TaskTemplate,
+  GoalDetails
 } from '../types';
 
 // Mock Users
@@ -143,42 +144,6 @@ export const mockUpdates: Update[] = [
     reactions: []
   }
 ];
-
-
-export const typeStyles: StylesByType = {
-  fondation: {
-    background: "bg-purple-500/10",
-    border: "border-purple-400/20",
-    text: "text-purple-100",
-    shadow: "shadow-purple-500/20",
-    glow: "after:bg-purple-500/5",
-    connection: "stroke-purple-400/30",
-  },
-  action: {
-    background: "bg-blue-500/10",
-    border: "border-blue-400/20",
-    text: "text-blue-100",
-    shadow: "shadow-blue-500/20",
-    glow: "after:bg-blue-500/5",
-    connection: "stroke-blue-400/30",
-  },
-  strategie: {
-    background: "bg-emerald-500/10",
-    border: "border-emerald-400/20",
-    text: "text-emerald-100",
-    shadow: "shadow-emerald-500/20",
-    glow: "after:bg-emerald-500/5",
-    connection: "stroke-emerald-400/30",
-  },
-  vision: {
-    background: "bg-amber-500/10",
-    border: "border-amber-400/20",
-    text: "text-amber-100",
-    shadow: "shadow-amber-500/20",
-    glow: "after:bg-amber-500/5",
-    connection: "stroke-amber-400/30",
-  },
-};
 
 
 
@@ -397,3 +362,260 @@ export const mockGoal: Goal = {
     },
   },
 };
+
+// Base goal template with shared properties
+const baseGoal: Omit<Goal, 'id' | 'title' | 'type' | 'level' | 'connections'> = {
+  progress: 0,
+  description: '',
+  details: mockGoal.details, // Using the existing mock details
+};
+
+export const mockGoals: Goal[] = [
+  // Vision
+  {
+    ...baseGoal,
+    id: 1,
+    title: "Expansion Internationale",
+    type: "vision",
+    level: 3,
+    progress: 45,
+    connections: [2, 3],
+    description: "Développer notre présence à l'international",
+  },
+  
+  // Stratégies
+  {
+    ...baseGoal,
+    id: 2,
+    title: "Plateforme E-commerce",
+    type: "strategie",
+    level: 2,
+    progress: 60,
+    connections: [4, 5],
+    description: "Moderniser notre plateforme de vente en ligne",
+  },
+  {
+    ...baseGoal,
+    id: 3,
+    title: "Réseau de Distribution",
+    type: "strategie",
+    level: 2,
+    progress: 30,
+    connections: [6],
+    description: "Établir un réseau de distribution international",
+  },
+  
+  // Actions
+  {
+    ...baseGoal,
+    id: 4,
+    title: "Refonte UX/UI",
+    type: "action",
+    level: 1,
+    progress: 80,
+    connections: [7, 8],
+    description: "Améliorer l'expérience utilisateur du site",
+  },
+  {
+    ...baseGoal,
+    id: 5,
+    title: "Système de Paiement",
+    type: "action",
+    level: 1,
+    progress: 40,
+    connections: [9],
+    description: "Intégrer de nouveaux moyens de paiement",
+  },
+  {
+    ...baseGoal,
+    id: 6,
+    title: "Partenariats Locaux",
+    type: "action",
+    level: 1,
+    progress: 30,
+    connections: [10],
+    description: "Développer des partenariats stratégiques",
+  },
+  
+  // Fondations
+  {
+    ...baseGoal,
+    id: 7,
+    title: "Design System",
+    type: "fondation",
+    level: 0,
+    progress: 90,
+    connections: [],
+    description: "Créer un système de design unifié",
+  },
+  {
+    ...baseGoal,
+    id: 8,
+    title: "Architecture Frontend",
+    type: "fondation",
+    level: 0,
+    progress: 70,
+    connections: [],
+    description: "Moderniser l'architecture frontend",
+  },
+  {
+    ...baseGoal,
+    id: 9,
+    title: "API Paiement",
+    type: "fondation",
+    level: 0,
+    progress: 40,
+    connections: [],
+    description: "Développer l'API de paiement",
+  },
+  {
+    ...baseGoal,
+    id: 10,
+    title: "CRM International",
+    type: "fondation",
+    level: 0,
+    progress: 20,
+    connections: [],
+    description: "Mettre en place un CRM adapté",
+  },
+];
+
+export const typeStyles = {
+  fondation: {
+    background: "bg-purple-500/10",
+    border: "border-purple-400/20",
+    text: "text-purple-100",
+    shadow: "shadow-purple-500/20",
+    glow: "after:bg-purple-500/5",
+    connection: "stroke-purple-400/30",
+    progress: "bg-purple-400/50",
+  },
+  action: {
+    background: "bg-blue-500/10",
+    border: "border-blue-400/20",
+    text: "text-blue-100",
+    shadow: "shadow-blue-500/20",
+    glow: "after:bg-blue-500/5",
+    connection: "stroke-blue-400/30",
+    progress: "bg-blue-400/50",
+  },
+  strategie: {
+    background: "bg-emerald-500/10",
+    border: "border-emerald-400/20",
+    text: "text-emerald-100",
+    shadow: "shadow-emerald-500/20",
+    glow: "after:bg-emerald-500/5",
+    connection: "stroke-emerald-400/30",
+    progress: "bg-emerald-400/50",
+  },
+  vision: {
+    background: "bg-amber-500/10",
+    border: "border-amber-400/20",
+    text: "text-amber-100",
+    shadow: "shadow-amber-500/20",
+    glow: "after:bg-amber-500/5",
+    connection: "stroke-amber-400/30",
+    progress: "bg-amber-400/50",
+  },
+} as const;
+
+export type TypeStyles = typeof typeStyles[keyof typeof typeStyles];
+export const mockGoalDetails: GoalDetails = {
+  startDate: "2024-01-01",
+  deadline: "2024-12-31",
+  status: "in_progress",
+  priority: "high",
+  assignees: mockUsers.slice(0, 2),
+  team: mockUsers,
+  description: "Développement et déploiement d'une nouvelle plateforme e-commerce internationale",
+  tasks: mockTasks,
+  taskTemplates: mockTaskTemplates,
+  milestones: [
+    {
+      id: "m1",
+      title: "Phase 1: Analyse et Design",
+      description: "Analyse des besoins et conception de l'architecture",
+      date: "2024-03-31",
+      completed: true,
+      priority: "high",
+      tasksCount: 8,
+      completedTasksCount: 8,
+      assignees: mockUsers.slice(0, 2),
+      dependencies: []
+    },
+    {
+      id: "m2",
+      title: "Phase 2: Développement MVP",
+      description: "Développement des fonctionnalités core",
+      date: "2024-06-30",
+      completed: false,
+      priority: "high",
+      tasksCount: 12,
+      completedTasksCount: 4,
+      assignees: mockUsers.slice(1, 3),
+      dependencies: ["m1"]
+    },
+    {
+      id: "m3",
+      title: "Phase 3: Tests et Déploiement",
+      description: "Tests d'intégration et déploiement production",
+      date: "2024-09-30",
+      completed: false,
+      priority: "medium",
+      tasksCount: 10,
+      completedTasksCount: 0,
+      assignees: mockUsers.slice(2, 4),
+      dependencies: ["m2"]
+    }
+  ],
+  dependencies: {
+    blockedBy: [
+      { id: 201, title: "Infrastructure Cloud", status: "completed" },
+      { id: 202, title: "API Gateway", status: "in_progress" }
+    ],
+    blocking: [
+      { id: 301, title: "Marketing International", status: "pending" },
+      { id: 302, title: "Support Client 24/7", status: "pending" }
+    ]
+  },
+  updates: mockUpdates,
+  metrics: mockMetrics,
+  resources: [
+    ...mockResources,
+    {
+      id: "r2",
+      type: "file",
+      name: "Architecture_Technique.pdf",
+      url: "/files/architecture.pdf",
+      createdAt: "2024-03-16T10:00:00Z",
+      updatedAt: "2024-03-16T10:00:00Z",
+      description: "Documentation technique détaillée",
+      tags: ["documentation", "architecture"],
+      relations: {
+        milestoneId: "m1"
+      },
+      addedBy: mockUsers[1]
+    }
+  ],
+  progress: 35,
+  updateSettings: {
+    allowComments: true,
+    allowReactions: true,
+    allowAttachments: true,
+    allowMentions: true,
+    notificationPreferences: {
+      mentions: true,
+      allUpdates: true,
+      milestones: true,
+      tasks: true
+    }
+  },
+  kpis: mockKPIs,
+  historicalData: mockHistoricalData,
+  tags: [
+    { id: "t1", name: "e-commerce", color: "#60A5FA" },
+    { id: "t2", name: "international", color: "#34D399" },
+    { id: "t3", name: "high-priority", color: "#F87171" }
+  ]
+};
+

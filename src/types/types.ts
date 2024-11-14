@@ -1,8 +1,10 @@
 export type ResourceType = "file" | "link";
 
 export type Priority = "low" | "medium" | "high";
+export type Status = "todo" | "in_progress" | "completed" | "pending";
+export type RecurringFrequency = "daily" | "weekly" | "monthly";
 
-export type Status = "completed" | "in_progress" | "pending";
+
 
 export interface User {
   id: string;
@@ -10,14 +12,9 @@ export interface User {
   avatar: string;
 }
 
-export type TaskStatus = 'todo' | 'in_progress' | 'completed';
-export type TaskPriority = 'low' | 'medium' | 'high';
-export type RecurringFrequency = 'daily' | 'weekly' | 'monthly';
-
 export interface Tag {
   id: string;
   name: string;
-  color?: string;
 }
 
 export interface ChecklistItem {
@@ -37,7 +34,7 @@ export interface TaskTemplate {
   title: string;
   description?: string;
   estimatedTime?: number;
-  priority: TaskPriority;
+  priority: Priority;
   checklist: ChecklistItem[];
   category?: string;
   labels?: string[];
@@ -47,8 +44,8 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
+  status: Status;
+  priority: Priority;
   deadline?: string;
   alert?: string;
   assignees: User[];
@@ -236,7 +233,6 @@ export interface TypeStyles {
   shadow: string;
   glow: string;
   connection: string;
-  progress: string;
 }
 
 export interface StylesByType {

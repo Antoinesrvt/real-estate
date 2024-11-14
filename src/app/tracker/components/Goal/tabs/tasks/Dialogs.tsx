@@ -163,7 +163,7 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
             <label className="text-sm text-white/60">Échéance</label>
             <DatePicker
               value={
-                formData.deadline ? new Date(formData.deadline) : undefined
+                formData?.deadline ? new Date(formData.deadline) : undefined
               }
               onChange={(date) =>
                 setFormData({

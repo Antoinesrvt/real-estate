@@ -1,110 +1,48 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, ZoomIn, ZoomOut, Home } from "lucide-react";
 import { motion } from "framer-motion";
-import { GoalCard } from "./Card";
-import { goalsData } from "../../../types/type";
+import { Plus, ZoomIn, ZoomOut, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GoalCard } from "./components/GoalCard";
 import { useGoal } from "../contexts/GoalContext";
-
-export interface Goal {
-  id: number;
-  title: string;
-  type: "fondation" | "action" | "strategie" | "vision";
-  level: number;
-  progress: number;
-  connections: number[];
-  description?: string;
-  position?: { x: number; y: number };
-}
-
-// Configuration de la grille avec des espacements optimisés
-const CARD_WIDTH = 264;
-const CARD_HEIGHT = 36;
-const HORIZONTAL_GAP = 70;  // Espacement entre les types (horizontal)
-const VERTICAL_GAP = 50;    // Espacement entre les goals (vertical)
-
-// Ordre des types de gauche à droite
-const SECTION_TYPES = ["fondation", "action", "strategie", "vision"];
+import { useGoalCalculations } from "@/hooks/use-goal-calculations";
+import { Goal } from "@/app/tracker/types/goals";
+import { typeStyles } from "@/app/tracker/new/mockData";
+import { mockGoals } from "@/app/tracker/new/mockData";
 
 const TYPE_LABELS = {
   fondation: "Fondations",
   action: "Actions",
   strategie: "Stratégies",
   vision: "Vision Stratégique",
-};
+} as const;
 
-const GoalTracker = () => {
+// Update these constants for better spacing
+const CARD_WIDTH = 264;
+const CARD_HEIGHT = 120; // Increased from 36 to account for actual card height
+const HORIZONTAL_GAP = 120;  // Increased from 70 for better separation
+const VERTICAL_GAP = 80;    // Increased from 50 for better separation
+
+export default function GoalTracker() {
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const canvasRef = useRef(null);
+  const [dragStartTime, setDragStartTime] = useState(0);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  
   const { openGoalCard } = useGoal();
 
-  // Mise à jour du calcul des positions
-  const calculatePositions = (goals: Goal[]) => {
-    // Grouper les goals par type
-    const goalsByType = SECTION_TYPES.reduce((acc, type) => {
-      acc[type] = goals.filter(goal => goal.type === type);
-      return acc;
-    }, {} as Record<string, Goal[]>);
-
-    return goals.map(goal => {
-      const typeIndex = SECTION_TYPES.indexOf(goal.type);
-      const goalsOfSameType = goalsByType[goal.type];
-      const goalIndexInType = goalsOfSameType.findIndex(g => g.id === goal.id);
-
-      return {
-        ...goal,
-        position: {
-          x: typeIndex * (CARD_WIDTH + HORIZONTAL_GAP),
-          y: goalIndexInType * (CARD_HEIGHT * 3 + VERTICAL_GAP)
-        }
-      };
-    });
-  };
-
-  // Initialiser les goals avec les positions calculées
-  const [goals] = useState(() => calculatePositions(goalsData));
-
-  const typeStyles = {
-    fondation: {
-      background: "bg-purple-500/10",
-      border: "border-purple-400/20",
-      text: "text-purple-100",
-      shadow: "shadow-purple-500/20",
-      glow: "after:bg-purple-500/5",
-      connection: "stroke-purple-400/30",
-    },
-    action: {
-      background: "bg-blue-500/10",
-      border: "border-blue-400/20",
-      text: "text-blue-100",
-      shadow: "shadow-blue-500/20",
-      glow: "after:bg-blue-500/5",
-      connection: "stroke-blue-400/30",
-    },
-    strategie: {
-      background: "bg-emerald-500/10",
-      border: "border-emerald-400/20",
-      text: "text-emerald-100",
-      shadow: "shadow-emerald-500/20",
-      glow: "after:bg-emerald-500/5",
-      connection: "stroke-emerald-400/30",
-    },
-    vision: {
-      background: "bg-amber-500/10",
-      border: "border-amber-400/20",
-      text: "text-amber-100",
-      shadow: "shadow-amber-500/20",
-      glow: "after:bg-amber-500/5",
-      connection: "stroke-amber-400/30",
-    },
-  };
+  // Use the calculations hook
+  const {
+    goalsWithPositions,
+    sectionLabels,
+    connections,
+    dimensions,
+  } = useGoalCalculations(mockGoals as Goal[]);
 
   // Gestion du zoom et du pan
-  const handleWheel = (e) => {
+  const handleWheel = (e: React.WheelEvent) => {
     if (e.ctrlKey) {
       e.preventDefault();
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
@@ -121,21 +59,18 @@ const GoalTracker = () => {
     }
   };
 
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1 || e.button === 0) {
       setIsDragging(true);
       setStartPos({
         x: e.clientX - transform.x,
         y: e.clientY - transform.y,
       });
+      setDragStartTime(Date.now());
     }
   };
 
-  const handleMouseMove = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
       setTransform((t) => ({
         ...t,
@@ -145,69 +80,62 @@ const GoalTracker = () => {
     }
   };
 
-  const handleMouseUp = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleMouseUp = (e: React.MouseEvent) => {
+    const dragDuration = Date.now() - dragStartTime;
     setIsDragging(false);
+    
+    // If the drag duration is less than 200ms, consider it a click
+    if (dragDuration < 200) {
+      const target = e.target as HTMLElement;
+      const goalCard = target.closest('[data-goal-id]');
+      if (goalCard) {
+        const goalId = goalCard.getAttribute('data-goal-id');
+        const goal = goalsWithPositions.find(g => g.id.toString() === goalId);
+        if (goal) {
+          openGoalCard(goal);
+        }
+      }
+    }
   };
 
   const renderConnections = () => {
-    return goals.map((goal) => {
-      return goal.connections.map((targetId) => {
-        const target = goals.find((g) => g.id === targetId);
-        if (!target) return null;
+    return connections.map((connection) => {
+      if (!connection) return null;
+      const { id, source, target, type } = connection;
 
-        const start = goal.position;
-        const end = target.position;
+      // Calculate the actual connection points
+      const startX = source.x + CARD_WIDTH; // Start from right edge of source
+      const startY = source.y + CARD_HEIGHT / 2; // Middle of card
+      const endX = target.x; // End at left edge of target
+      const endY = target.y + CARD_HEIGHT / 2; // Middle of card
 
-        // Points de contrôle pour une courbe plus naturelle
-        const midX = (start.x + end.x) / 2;
-
-        return (
-          <path
-            key={`${goal.id}-${targetId}`}
-            d={`M ${start.x + CARD_WIDTH} ${start.y + CARD_HEIGHT/2} 
-                C ${midX} ${start.y + CARD_HEIGHT/2},
-                  ${midX} ${end.y + CARD_HEIGHT/2},
-                  ${end.x} ${end.y + CARD_HEIGHT/2}`}
-            className={`${typeStyles[goal.type].connection} fill-none stroke-2`}
-            strokeDasharray="5,5"
-            style={{ opacity: 0.6 }}
-          />
-        );
-      });
+      // Calculate control points for a smooth curve
+      const midX = (startX + endX) / 2;
+      
+      return (
+        <path
+          key={id}
+          d={`M ${startX} ${startY} 
+              C ${midX} ${startY},
+                ${midX} ${endY},
+                ${endX} ${endY}`}
+          className={`${typeStyles[type].connection} fill-none stroke-2`}
+          strokeDasharray="5,5"
+          style={{ opacity: 0.6 }}
+        />
+      );
     });
   };
 
-  const renderGoalCard = (goal) => {
-    return (
-      <div 
-        key={goal.id} 
-        onClick={() => {
-          openGoalCard(goal);
-        }}
-      >
-        <GoalCard
-          id={goal.id}
-          title={goal.title}
-          type={goal.type}
-          progress={goal.progress}
-          description={goal.description}
-          position={goal.position}
-        />
-      </div>
-    );
-  };
-
+  // Update the section labels positioning
   const renderSectionLabels = () => {
-    return SECTION_TYPES.map((type, index) => (
+    return sectionLabels.map(({ type, position }) => (
       <React.Fragment key={type}>
-        {/* Section Label */}
         <div
           className="absolute flex flex-col items-center gap-2"
           style={{
-            left: index * (CARD_WIDTH + HORIZONTAL_GAP) + CARD_WIDTH/2,
-            top: -40,
+            left: position.x + CARD_WIDTH/2, // Center under the cards
+            top: position.y - 60, // Move up a bit more
             transform: 'translateX(-50%)'
           }}
         >
@@ -218,11 +146,11 @@ const GoalTracker = () => {
         </div>
         
         {/* Vertical Separator */}
-        {index < SECTION_TYPES.length - 1 && (
+        {type !== 'vision' && (
           <div
             className="absolute top-0 bottom-0 border-r border-dashed border-white/10"
             style={{
-              left: (index + 1) * (CARD_WIDTH + HORIZONTAL_GAP) - HORIZONTAL_GAP/2,
+              left: position.x + CARD_WIDTH + HORIZONTAL_GAP/2,
             }}
           />
         )}
@@ -230,33 +158,34 @@ const GoalTracker = () => {
     ));
   };
 
+  // Update the canvas container to ensure proper centering
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="fixed top-4 left-4 z-20 flex gap-2">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-white/10 hover:bg-white/20"
           onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
         >
           <Home className="h-5 w-5 text-white" />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-white/10 hover:bg-white/20"
           onClick={() => setTransform((t) => ({ ...t, scale: t.scale * 1.2 }))}
         >
           <ZoomIn className="h-5 w-5 text-white" />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-white/10 hover:bg-white/20"
           onClick={() => setTransform((t) => ({ ...t, scale: t.scale * 0.8 }))}
         >
           <ZoomOut className="h-5 w-5 text-white" />
-        </motion.button>
+        </Button>
       </div>
 
       <div
@@ -266,7 +195,7 @@ const GoalTracker = () => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={() => setIsDragging(false)}
       >
         <div
           className="relative w-full h-full"
@@ -276,15 +205,40 @@ const GoalTracker = () => {
             transition: isDragging ? "none" : "transform 0.1s ease-out",
           }}
         >
-          {renderSectionLabels()}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {renderConnections()}
-          </svg>
-          {goals.map(renderGoalCard)}
+          {/* Center the content initially */}
+          <div 
+            className="absolute"
+            style={{
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
+          >
+            {renderSectionLabels()}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{
+                width: dimensions.width + HORIZONTAL_GAP,
+                height: dimensions.height + VERTICAL_GAP,
+                left: -HORIZONTAL_GAP/2,
+                top: -VERTICAL_GAP/2,
+              }}
+            >
+              {renderConnections()}
+            </svg>
+            {goalsWithPositions.map((goal) => (
+              <div key={goal.id} data-goal-id={goal.id}>
+                <GoalCard
+                  goal={goal}
+                  styles={typeStyles[goal.type]}
+                  onOpen={openGoalCard}
+                  position={goal.position}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default GoalTracker;
+}

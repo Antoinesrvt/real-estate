@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { EventUpdate, ObjectUpdate, Update, UpdateAttachment, UpdateObjectType, User } from "../../../types";
-import EventUpdateCard from "./updatesCards/EventUpdate";
-import ObjectUpdateCard from "./updatesCards/ObjectUpdateCard";
+import { EventUpdateCard } from "./updates/EventUpdateCard";
+import { ObjectUpdateCard } from "./updates/ObjectUpdateCard";
 import EmojiPicker from 'emoji-picker-react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
