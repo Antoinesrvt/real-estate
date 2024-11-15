@@ -78,39 +78,40 @@ export default function Metrics({
           <PerformanceMetricsCard metrics={currentMetrics} />
         </div>
 
-        {/* Predictions - Now spans 8 columns for better visibility */}
+        {/* Historical Data Chart */}
         <div className="col-span-8">
-          <PredictionsCard 
-            predictions={predictions} 
+          <MetricsChart
+            data={filteredData}
+            timeRange={timeRange}
+            onTimeRangeChange={setTimeRange}
+          />
+        </div>    
+
+        {/* Predictions - Now spans 8 columns for better visibility */}
+        {/* <div className="col-span-12">
+          <PredictionsCard
+            predictions={predictions}
             historicalData={filteredData}
             currentMetrics={currentMetrics}
           />
-        </div>
-      </div>
-
-      {/* Historical Data Chart */}
-      <div className="grid grid-cols-1">
-        <MetricsChart
-          data={filteredData}
-          timeRange={timeRange}
-          onTimeRangeChange={setTimeRange}
-        />
+        </div> */}
       </div>
 
       {/* KPIs Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Indicateurs de Performance (KPIs)</h3>
-        <KPIGrid 
-          kpis={goalDetails.kpis}
-          onSelect={setSelectedKPI}
-        />
+        <h3 className="text-lg font-semibold text-white">
+          Indicateurs de Performance (KPIs)
+        </h3>
+        <KPIGrid kpis={goalDetails.kpis} onSelect={setSelectedKPI} />
       </div>
 
       {/* Dialogs */}
       <Dialog open={!!selectedKPI} onOpenChange={() => setSelectedKPI(null)}>
         <DialogContent className="bg-slate-800 border-white/10 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">{selectedKPI?.name}</DialogTitle>
+            <DialogTitle className="text-white">
+              {selectedKPI?.name}
+            </DialogTitle>
           </DialogHeader>
           {selectedKPI && (
             <KPIDetails

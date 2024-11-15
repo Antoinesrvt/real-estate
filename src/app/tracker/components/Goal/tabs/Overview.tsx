@@ -20,8 +20,8 @@ export default function Overview({
 }: OverviewTabProps) {
   return (
     <div className="grid grid-cols-12 gap-6">
-      {/* Description Card - Spans 8 columns */}
-      <Card className="col-span-8 bg-white/5 border-white/10">
+      {/* Description Card - Adjusted to span 7 columns */}
+      <Card className="col-span-7 bg-white/5 border-white/10">
         <CardContent className="p-6">
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-lg font-semibold text-white">Description</h3>
@@ -65,8 +65,8 @@ export default function Overview({
         </CardContent>
       </Card>
 
-      {/* Metrics Card - Spans 4 columns */}
-      <Card className="col-span-4 bg-white/5 border-white/10">
+      {/* Metrics Card - Adjusted to span 3 columns */}
+      <Card className="col-span-3 bg-white/5 border-white/10">
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold text-white mb-4">
             Métriques
@@ -78,14 +78,25 @@ export default function Overview({
         </CardContent>
       </Card>
 
-      {/* Tasks Card - Spans 4 columns */}
+
+      {/* Statistics Card - Spans 2 columns and all rows */}
+      <Card className="col-span-2 row-span-3 bg-white/5 border-white/10">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">
+            Statistiques
+          </h3>
+          <StatisticsSection goalDetails={goalDetails} />
+        </CardContent>
+      </Card>
+
+      {/* Tasks Card - Adjusted to span 5 columns */}
       <Card className="col-span-5 bg-white/5 border-white/10">
         <CardContent className="p-6">
           <TasksSection tasks={goalDetails.tasks} />
         </CardContent>
       </Card>
 
-      {/* Dependencies Card - Spans 4 columns */}
+      {/* Dependencies Card - Adjusted to span 5 columns */}
       <Card className="col-span-5 bg-white/5 border-white/10">
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold text-white mb-4">
@@ -95,16 +106,6 @@ export default function Overview({
             dependencies={goalDetails.dependencies}
             styles={styles}
           />
-        </CardContent>
-      </Card>
-
-      {/* Statistics Card - Spans 4 columns */}
-      <Card className="col-span-2 bg-white/5 border-white/10">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Statistiques
-          </h3>
-          <StatisticsSection goalDetails={goalDetails} />
         </CardContent>
       </Card>
     </div>
