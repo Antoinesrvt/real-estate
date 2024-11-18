@@ -1,83 +1,85 @@
 import { useMemo } from 'react';
-import { Goal } from '@/app/tracker/types/goals';
-import { CARD_WIDTH, CARD_HEIGHT, HORIZONTAL_GAP, VERTICAL_GAP } from '@/app/tracker/new/constants';
+import { Goal, Connection, Position, GoalType } from '@/types/goals';
 
-const SECTION_TYPES = ["fondation", "action", "strategie", "vision"] as const;
+const CARD_WIDTH = 264;
+const CARD_HEIGHT = 120;
+const HORIZONTAL_GAP = 120;
+const VERTICAL_GAP = 80;
+
+interface SectionLabel {
+  type: GoalType;
+  position: Position;
+}
+
+interface CalculatedConnection extends Connection {
+  source: Position;
+  target: Position;
+}
 
 export function useGoalCalculations(goals: Goal[]) {
   return useMemo(() => {
-    // Group goals by type
-    const goalsByType = SECTION_TYPES.reduce((acc, type) => {
-      acc[type] = goals.filter(goal => goal.type === type);
+    // Group goals by type and calculate positions
+    const typeGroups = goals.reduce((acc, goal) => {
+      if (!acc[goal.type]) acc[goal.type] = [];
+      acc[goal.type].push(goal);
       return acc;
-    }, {} as Record<string, Goal[]>);
+    }, {} as Record<GoalType, Goal[]>);
 
-    // Calculate max height for vertical centering
-    const maxGoalsInSection = Math.max(...Object.values(goalsByType).map(g => g.length));
-    const totalHeight = maxGoalsInSection * (CARD_HEIGHT + VERTICAL_GAP);
-
+    // Calculate dimensions and positions
+    const types: GoalType[] = ['fondation', 'action', 'strategie', 'vision'];
+    let maxRowCount = 0;
+    
     // Calculate positions for each goal
     const goalsWithPositions = goals.map(goal => {
-      const typeIndex = SECTION_TYPES.indexOf(goal.type);
-      const goalsOfSameType = goalsByType[goal.type];
-      const goalIndexInType = goalsOfSameType.findIndex(g => g.id === goal.id);
-      const sectionStartY = -totalHeight / 2; // Center vertically
+      const typeIndex = types.indexOf(goal.type);
+      const goalsInType = typeGroups[goal.type];
+      const rowIndex = goalsInType.indexOf(goal);
+      maxRowCount = Math.max(maxRowCount, goalsInType.length);
 
-      return {
-        ...goal,
-        position: {
-          x: typeIndex * (CARD_WIDTH + HORIZONTAL_GAP),
-          y: sectionStartY + goalIndexInType * (CARD_HEIGHT + VERTICAL_GAP),
-        },
+      const position = {
+        x: typeIndex * (CARD_WIDTH + HORIZONTAL_GAP),
+        y: rowIndex * (CARD_HEIGHT + VERTICAL_GAP)
       };
+
+      return { ...goal, position };
     });
 
-    // Calculate section labels positions
-    const sectionLabels = SECTION_TYPES.map((type, index) => ({
+    // Calculate section labels
+    const sectionLabels: SectionLabel[] = types.map((type, index) => ({
       type,
       position: {
         x: index * (CARD_WIDTH + HORIZONTAL_GAP),
-        y: -totalHeight / 2 - 60, // Above the cards
-      },
+        y: -VERTICAL_GAP
+      }
     }));
 
-    // Calculate connections with better curves
-    const connections = goals.flatMap(goal => 
-      goal.connections.map(targetId => {
-        const source = goalsWithPositions.find(g => g.id === goal.id);
-        const target = goalsWithPositions.find(g => g.id === targetId);
-        if (!source || !target) return null;
+    // Process connections with proper type filtering
+    const connections: CalculatedConnection[] = goalsWithPositions
+      .flatMap(goal =>
+        goal.connections.map(conn => {
+          const target = goalsWithPositions.find(g => g.id === conn.targetId);
+          if (!target?.position || !goal.position) return null;
 
-        // Calculate connection points
-        const startX = source.position.x + CARD_WIDTH;
-        const startY = source.position.y + CARD_HEIGHT / 2;
-        const endX = target.position.x;
-        const endY = target.position.y + CARD_HEIGHT / 2;
+          return {
+            ...conn,
+            source: goal.position,
+            target: target.position,
+            type: goal.type
+          };
+        })
+      )
+      .filter((conn): conn is CalculatedConnection => conn !== null);
 
-        // Calculate control points for a smooth curve
-        const distance = endX - startX;
-        const controlPoint1X = startX + distance * 0.4;
-        const controlPoint2X = endX - distance * 0.4;
-
-        return {
-          id: `${goal.id}-${targetId}`,
-          source: { x: startX, y: startY },
-          target: { x: endX, y: endY },
-          control1: { x: controlPoint1X, y: startY },
-          control2: { x: controlPoint2X, y: endY },
-          type: goal.type,
-        };
-      }).filter(Boolean)
-    );
+    const dimensions = {
+      width: (types.length - 1) * (CARD_WIDTH + HORIZONTAL_GAP),
+      height: (maxRowCount - 1) * (CARD_HEIGHT + VERTICAL_GAP)
+    };
 
     return {
       goalsWithPositions,
       sectionLabels,
       connections,
-      dimensions: {
-        width: (SECTION_TYPES.length * (CARD_WIDTH + HORIZONTAL_GAP)) - HORIZONTAL_GAP,
-        height: totalHeight,
-      },
+      dimensions
     };
   }, [goals]);
 } 

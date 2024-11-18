@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Metrics, KPI } from '@/app/tracker/types/metrics';
+import { Metrics, KPI } from '@/types/metrics';
 
 export function useMetricsCalculations(metrics: Metrics, timeRange: string) {
   return useMemo(() => {

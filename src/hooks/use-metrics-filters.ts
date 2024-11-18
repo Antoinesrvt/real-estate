@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { KPI } from '@/app/tracker/types/metrics';
+import { KPI } from '@/types/metrics';
 import { subDays, subMonths, subYears, isAfter } from 'date-fns';
 
 type TimeRange = '1w' | '1m' | '3m' | '6m' | '1y';

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Task } from '@/app/tracker/types/tasks';
-import { TaskFilters } from '@/app/tracker/components/Goal/tabs/tasks/types';
+import { Task } from '@/types/tasks';
+import { TaskFilters } from '@/components/Goal/tabs/tasks/types';
 import { isWithinInterval } from 'date-fns';
 
 export function useTaskFilters(tasks: Task[], filters: TaskFilters) {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { HistoricalData, Metrics, Prediction } from '@/app/tracker/types/metrics';
+import { HistoricalData, Metrics, Prediction } from '@/types/metrics';
 import { calculatePredictions } from '@/lib/metrics';
-import { TimeRange } from '@/app/tracker/components/Goal/tabs/metrics/types';
+import { TimeRange } from '@/components/Goal/tabs/metrics/types';
 import { subDays, subMonths, subYears } from 'date-fns';
 
 export function useMetricsData(

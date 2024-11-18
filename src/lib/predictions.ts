@@ -1,6 +1,6 @@
 import { addMonths, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { HistoricalData, Prediction } from "@/app/tracker/types/metrics";
+import { HistoricalData, Prediction } from "@/types/metrics";
 
 interface PredictionPoint {
   date: string;

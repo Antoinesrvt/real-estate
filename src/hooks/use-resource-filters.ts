@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Resource } from '@/app/tracker/types/resources';
-import { ResourceFilters } from '@/app/tracker/components/Goal/tabs/resources/types';
+import { Resource } from '@/types/resources';
+import { ResourceFilters } from '@/components/Goal/tabs/resources/types';
 
 export function useResourceFilters(resources: Resource[], filters: ResourceFilters) {
   return useMemo(() => {

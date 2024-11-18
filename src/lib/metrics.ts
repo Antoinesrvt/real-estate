@@ -1,6 +1,6 @@
 import { addDays } from "date-fns";
 import { format } from "date-fns";
-import { HistoricalData, Prediction } from "@/app/tracker/types/metrics";
+import { HistoricalData, Prediction } from "@/types/metrics";
 
 export function calculatePredictions(historicalData: HistoricalData): Prediction {
   // Guard clause for empty data

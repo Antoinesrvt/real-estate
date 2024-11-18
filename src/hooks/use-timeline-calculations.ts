@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Milestone } from '@/app/tracker/types/milestones';
+import { Milestone } from '@/types/milestones';
 import { isAfter, isBefore, isToday } from 'date-fns';
 
 export function useTimelineCalculations(milestones: Milestone[]) {
