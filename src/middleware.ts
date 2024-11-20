@@ -28,6 +28,16 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getSession()
 
+  const user = await supabase.auth.getUser()
+
+  if (request.nextUrl.pathname.startsWith("/protected") && user.error) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
+
+  if (request.nextUrl.pathname === "/" && !user.error) {
+    return NextResponse.redirect(new URL("/protected", request.url));
+  }
+
   return response
 }
 

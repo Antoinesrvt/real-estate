@@ -10,6 +10,11 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from './database.types'
 
+
+// Type exports
+export type Tables = Database['public']['Tables']
+export type Enums = Database['public']['Enums']
+
 // Environment variable validation
 const getEnvironmentVariable = (key: string): string => {
   const value = process.env[key]

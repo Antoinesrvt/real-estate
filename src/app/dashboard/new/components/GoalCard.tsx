@@ -4,10 +4,14 @@ import { Plus, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Goal, TypeStyles } from "@/types/goals";
 
+import type { Database } from "@/lib/supabase/database.types";
+
+type DbGoal = Database['public']['Tables']['goals']['Row']
+
 interface GoalCardProps {
-  goal: Goal;
+  goal: DbGoal;
   styles: TypeStyles;
-  onOpen: (goal: Goal) => void;
+  onOpen: (goal: DbGoal) => void;
   position?: { x: number; y: number };
 }
 

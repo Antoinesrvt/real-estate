@@ -188,3 +188,9 @@ CREATE TRIGGER validate_goal_dates_trigger
     BEFORE INSERT OR UPDATE ON goals
     FOR EACH ROW
     EXECUTE FUNCTION validate_goal_dates(); 
+
+
+CREATE TRIGGER handle_updated_at
+    BEFORE UPDATE ON team_assignments
+    FOR EACH ROW
+    EXECUTE PROCEDURE moddatetime(updated_at);

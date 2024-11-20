@@ -98,3 +98,21 @@ CREATE INDEX idx_critical_milestones ON milestones(goal_id) WHERE is_critical = 
 CREATE INDEX idx_pending_tasks ON tasks(goal_id) WHERE status IN ('todo', 'in_progress');
 CREATE INDEX idx_recent_updates ON updates(target_id, created_at) 
     WHERE created_at > (NOW() - INTERVAL '30 days'); 
+
+-- Team assignment indexes
+CREATE INDEX idx_team_assignments_lookup 
+ON team_assignments(user_id, assignable_type, assignable_id);
+
+
+-- Milestone indexes
+CREATE INDEX idx_milestones_title ON milestones USING gin (title gin_trgm_ops);
+CREATE INDEX idx_milestones_composite ON milestones(goal_id, status, is_critical);
+
+-- Subtask indexes
+CREATE INDEX idx_subtasks_task ON subtasks(task_id);
+CREATE INDEX idx_subtasks_completion ON subtasks(task_id, completed);
+
+-- KPI indexes
+CREATE INDEX idx_kpis_goal ON kpis(goal_id);
+CREATE INDEX idx_kpis_type_value ON kpis(type, value);
+CREATE INDEX idx_kpis_performance ON kpis(goal_id, value, target);

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Goal, Connection, Position, GoalType } from '@/types/goals';
+import { Database } from '@/lib/supabase/database.types';
 
 const CARD_WIDTH = 264;
 const CARD_HEIGHT = 120;
@@ -16,14 +17,16 @@ interface CalculatedConnection extends Connection {
   target: Position;
 }
 
-export function useGoalCalculations(goals: Goal[]) {
+type DbGoal = Database['public']['Tables']['goals']['Row']
+
+export function useGoalCalculations(goals: DbGoal[]) {
   return useMemo(() => {
     // Group goals by type and calculate positions
     const typeGroups = goals.reduce((acc, goal) => {
       if (!acc[goal.type]) acc[goal.type] = [];
       acc[goal.type].push(goal);
       return acc;
-    }, {} as Record<GoalType, Goal[]>);
+    }, {} as Record<GoalType, DbGoal[]>);
 
     // Calculate dimensions and positions
     const types: GoalType[] = ['fondation', 'action', 'strategie', 'vision'];

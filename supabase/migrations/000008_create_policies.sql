@@ -230,4 +230,45 @@ CREATE POLICY "Team assignment management"
             AND ta.assignable_id = team_assignments.assignable_id
             AND ta.role IN ('owner', 'admin')
         )
+    );
+
+-- Milestone Policies
+CREATE POLICY "Milestone visibility based on goal access"
+    ON milestones FOR SELECT
+    USING (
+        goal_id IN (
+            SELECT g.id FROM goals g
+            JOIN team_assignments ta ON 
+                ta.assignable_type = 'goal' 
+                AND ta.assignable_id = g.id
+            WHERE ta.user_id = auth.uid()
+        )
+    );
+
+-- Subtask Policies
+CREATE POLICY "Subtask visibility based on task access"
+    ON subtasks FOR SELECT
+    USING (
+        task_id IN (
+            SELECT t.id FROM tasks t
+            WHERE EXISTS (
+                SELECT 1 FROM team_assignments ta
+                WHERE ta.user_id = auth.uid()
+                AND ta.assignable_type = 'task'
+                AND ta.assignable_id = t.id
+            )
+        )
+    );
+
+-- KPI Policies
+CREATE POLICY "KPI visibility based on goal access"
+    ON kpis FOR SELECT
+    USING (
+        goal_id IN (
+            SELECT g.id FROM goals g
+            JOIN team_assignments ta ON 
+                ta.assignable_type = 'goal'
+                AND ta.assignable_id = g.id
+            WHERE ta.user_id = auth.uid()
+        )
     ); 

@@ -66,6 +66,7 @@ export interface GoalDetails {
 
 export interface Goal {
   id: number;
+  
   title: string;
   type: "fondation" | "action" | "strategie" | "vision";
   level: number;

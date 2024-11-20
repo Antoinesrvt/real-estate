@@ -9,7 +9,8 @@ import { useGoal } from "@/contexts/GoalContext";
 import { useGoalCalculations } from "@/hooks/use-goal-calculations";
 import { Goal } from "@/types/goals";
 import { typeStyles } from "@/app/dashboard/new/mockData";
-import { mockGoals } from "@/app/dashboard/new/mockData";
+import { useGoals } from '@/hooks/use-goals'
+import { useWorkspace } from '@/hooks/use-workspace'
 
 const TYPE_LABELS = {
   fondation: "Fondations",
@@ -33,13 +34,39 @@ export default function GoalTracker() {
   
   const { openGoalCard } = useGoal();
 
+  const { workspace } = useWorkspace()
+  const { goals, loading, error } = useGoals(workspace?.id)
+
+  // Early return for loading state
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+          <p className="text-white/70">Loading workspace...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Early return for error state
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="text-red-500 bg-red-500/10 px-4 py-2 rounded-lg">
+          {error.message}
+        </div>
+      </div>
+    )
+  }
+
   // Use the calculations hook
   const {
     goalsWithPositions,
     sectionLabels,
     connections,
     dimensions,
-  } = useGoalCalculations(mockGoals as Goal[]);
+  } = useGoalCalculations(goals);
 
   // Gestion du zoom et du pan
   const handleWheel = (e: React.WheelEvent) => {

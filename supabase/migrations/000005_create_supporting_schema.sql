@@ -1,3 +1,20 @@
+-- Milestones
+create TABLE milestones (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  status goal_status NOT NULL DEFAULT 'draft',
+  start_date TIMESTAMPTZ,
+  target_date TIMESTAMPTZ,
+  goal_id UUID REFERENCES goals(id) ON DELETE CASCADE,
+  is_critical BOOLEAN NOT NULL DEFAULT false,
+  position INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT valid_title CHECK (char_length(title) >= 2)
+);
+
+
 -- Tasks and related tables
 CREATE TABLE tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -99,14 +116,6 @@ CREATE TABLE comments (
 );
 
 -- Metrics and KPIs
-CREATE TABLE metrics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    target_id UUID NOT NULL,
-    config_id UUID NOT NULL REFERENCES metric_configs(id) ON DELETE CASCADE,
-    current_values JSONB NOT NULL DEFAULT '{}',
-    historical_values JSONB NOT NULL DEFAULT '{}',
-    last_calculated TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
 
 CREATE TABLE metric_configs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -116,6 +125,17 @@ CREATE TABLE metric_configs (
     refresh_rate INTERVAL NOT NULL DEFAULT '1 day'::INTERVAL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE metrics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    target_id UUID NOT NULL,
+    config_id UUID NOT NULL REFERENCES metric_configs(id) ON DELETE CASCADE,
+    current_values JSONB NOT NULL DEFAULT '{}',
+    historical_values JSONB NOT NULL DEFAULT '{}',
+    last_calculated TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
 
 CREATE TABLE kpis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

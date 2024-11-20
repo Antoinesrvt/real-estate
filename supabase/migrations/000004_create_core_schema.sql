@@ -21,6 +21,25 @@ CREATE TABLE workspaces (
     CONSTRAINT valid_name CHECK (char_length(name) >= 2)
 );
 
+CREATE TABLE team_assignments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    assignable_type TEXT NOT NULL,
+    assignable_id UUID NOT NULL,
+    role team_role NOT NULL DEFAULT 'member',
+    valid_period TSTZRANGE DEFAULT tstzrange(now(), NULL) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT valid_assignable_type CHECK (
+        assignable_type IN (
+            'organization',
+            'workspace',
+            'goal',
+            'task'
+        )
+    )
+);
+
 CREATE TABLE goal_configs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     visualization_settings JSONB NOT NULL DEFAULT '{}',
@@ -37,6 +56,7 @@ CREATE TABLE goals (
     description TEXT,
     workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     parent_goal_id UUID REFERENCES goals(id) ON DELETE SET NULL,
+    connections JSONB NOT NULL DEFAULT '[]',
     type goal_type NOT NULL,
     level INTEGER NOT NULL DEFAULT 0,
     status goal_status NOT NULL DEFAULT 'draft',
