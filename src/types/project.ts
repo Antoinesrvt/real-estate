@@ -78,6 +78,11 @@ export interface ProjectDetail {
     participants: number;
     avisPositifs: number;
     commentaires: number;
+    commentairesList: {
+      nom: string;
+      date: string;
+      contenu: string;
+    }[];  
   };
   budgetData: {
     name: string;

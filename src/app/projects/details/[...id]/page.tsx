@@ -118,6 +118,23 @@ const ProjetDetailView = ({ projet }: { projet: any }) => {
       participants: 1250,
       avisPositifs: 850,
       commentaires: 320,
+      commentairesList: [
+        {
+          nom: "John Doe",
+          date: "2024-03-01",
+          contenu: "Très intéressant",
+        },
+        {
+          nom: "Jane Doe",
+          date: "2024-03-02",
+          contenu: "Merci pour l'information",
+        },
+        {
+          nom: "John Doe",
+          date: "2024-03-03",
+          contenu: "Je suis désolé mais...",
+        },
+      ],
     },
     budgetData: [
       { name: "Infrastructure", value: 120000 },
